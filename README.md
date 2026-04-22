@@ -17,3 +17,4 @@ En los lugares donde se trabaja con grandes documentaciones siempre existirá el
 * Fácil de utilizar.
 * Cumplimiento de las normas nacionales.
 * Controles de seguridad en los documentos.
+* Accesible para todo público
