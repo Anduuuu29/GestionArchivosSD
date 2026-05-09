@@ -1,12 +1,12 @@
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
-import { 
-  searchOutline, 
-  notificationsOutline, 
-  settingsOutline, 
-  homeOutline, 
-  documentTextOutline, 
-  folderOpenOutline, 
-  addOutline, 
+import {
+  searchOutline,
+  notificationsOutline,
+  settingsOutline,
+  homeOutline,
+  documentTextOutline,
+  folderOpenOutline,
+  addOutline,
   timeOutline,
   eyeOutline,
   downloadOutline,
@@ -31,7 +31,7 @@ const DocumentosAdminDetails: React.FC = () => {
     <IonPage>
       <IonContent fullscreen>
         <div className="flex w-full min-h-screen font-['Public_Sans',sans-serif] bg-white relative">
-          
+
           {/* Sidebar */}
           <aside className="w-[208px] bg-[#eee] border-r border-[#a8b7c7] flex flex-col justify-between shrink-0 h-screen sticky top-0">
             <div>
@@ -61,7 +61,7 @@ const DocumentosAdminDetails: React.FC = () => {
                   <li onClick={() => history.push('/admin/archivos')} className="flex items-center px-4 py-3 gap-3 hover:bg-[#e0e0e0] cursor-pointer transition-colors">
                     <IonIcon icon={folderOpenOutline} className="text-[#4a4a4a] text-lg" />
                     <span className="font-['Inter',sans-serif] font-medium text-[#4a4a4a] text-xs tracking-widest uppercase leading-tight">
-                      Administración<br/>de archivos
+                      Administración<br />de archivos
                     </span>
                   </li>
                 </ul>
@@ -73,7 +73,7 @@ const DocumentosAdminDetails: React.FC = () => {
                 <IonIcon icon={addOutline} className="text-lg" />
                 Nuevo Trámite
               </button>
-              
+
               <div className="border-t border-[#353535] pt-4">
                 <div className="flex items-center gap-3 px-4 py-2 hover:bg-[#e0e0e0] cursor-pointer rounded transition-colors">
                   <IonIcon icon={timeOutline} className="text-[#4a4a4a] text-lg" />
@@ -81,7 +81,7 @@ const DocumentosAdminDetails: React.FC = () => {
                     Logs
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-3 mt-4 px-4 py-2 hover:bg-[#e0e0e0] cursor-pointer rounded transition-colors">
                   <div className="w-8 h-8 rounded-full bg-[#353535]"></div>
                   <div className="flex flex-col">
@@ -95,20 +95,20 @@ const DocumentosAdminDetails: React.FC = () => {
 
           {/* Main Content Area */}
           <main className="flex-1 flex flex-col min-w-0 bg-[#f8f9fa] h-screen overflow-hidden">
-            
+
             {/* Topbar */}
             <header className="h-[60px] bg-[#050d2c] flex items-center justify-between px-6 shrink-0 z-20">
               <div className="flex-1 max-w-[448px]">
                 <div className="bg-[#eee] border border-white/20 rounded flex items-center px-4 py-2 gap-3 focus-within:ring-2 ring-white/50 transition-all">
                   <IonIcon icon={searchOutline} className="text-[#4a4a4a]" />
-                  <input 
-                    type="text" 
-                    placeholder="Buscar archivos" 
+                  <input
+                    type="text"
+                    placeholder="Buscar archivos"
                     className="bg-transparent border-none outline-none text-[#4a4a4a] text-sm w-full placeholder:text-[#4a4a4a]/70"
                   />
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4 text-white">
                 <button className="p-2 hover:bg-white/10 rounded transition-colors">
                   <IonIcon icon={notificationsOutline} className="text-xl" />
@@ -124,7 +124,7 @@ const DocumentosAdminDetails: React.FC = () => {
 
             {/* Content Container */}
             <div className="p-8 flex flex-col gap-6 overflow-y-auto flex-1 pr-[460px]"> {/* Added padding for drawer */}
-              
+
               {/* Header Section */}
               <div className="flex justify-between items-start">
                 <div>
@@ -134,7 +134,7 @@ const DocumentosAdminDetails: React.FC = () => {
                   </div>
                   <p className="text-[#414751] text-base m-0 max-w-md">Gestione y revise la documentación municipal pendiente de resolución.</p>
                 </div>
-                
+
                 {/* Filter Chips */}
                 <div className="flex items-center bg-[#f2f3ff] rounded-xl p-1.5 shadow-sm border border-gray-200">
                   <button className="flex items-center gap-2 bg-[#00518e] text-white px-4 py-2 rounded-lg text-sm transition-colors">
@@ -191,7 +191,7 @@ const DocumentosAdminDetails: React.FC = () => {
                         </td>
                         <td className="p-6">
                           <div className="inline-block bg-[#ddd] text-[#5f6161] text-xs font-medium px-2 py-1 rounded whitespace-nowrap">
-                            Permiso<br/>Edificación
+                            Permiso<br />Edificación
                           </div>
                         </td>
                         <td className="p-6">
@@ -294,7 +294,7 @@ const DocumentosAdminDetails: React.FC = () => {
 
             {/* Drawer Scrollable Content */}
             <div className="p-6 overflow-y-auto flex-1 flex flex-col gap-8">
-              
+
               {/* Status Section */}
               <div className="flex flex-col gap-4">
                 <div className="flex justify-between items-center">
@@ -361,7 +361,7 @@ const DocumentosAdminDetails: React.FC = () => {
               {/* Timeline */}
               <div className="flex flex-col gap-4">
                 <span className="text-[#121a34] text-sm font-normal tracking-wide uppercase">Historial de Trámite</span>
-                
+
                 <div className="relative pl-6 flex flex-col gap-6">
                   {/* Vertical Line */}
                   <div className="absolute top-2 bottom-2 left-2 w-0.5 bg-gray-200"></div>
@@ -393,7 +393,7 @@ const DocumentosAdminDetails: React.FC = () => {
 
             {/* Drawer Footer */}
             <div className="p-6 border-t border-gray-200 bg-white grid grid-cols-2 gap-4 shrink-0">
-              <button className="flex items-center justify-center gap-2 border border-[#717782] text-[#121a34] rounded-xl py-3 text-sm font-medium hover:bg-gray-50 transition-colors">
+              <button onClick={() => history.push('/admin/documentos/expandido')} className="flex items-center justify-center gap-2 border border-[#717782] text-[#121a34] rounded-xl py-3 text-sm font-medium hover:bg-gray-50 transition-colors">
                 <IonIcon icon={pencilOutline} className="text-lg" />
                 Observar
               </button>

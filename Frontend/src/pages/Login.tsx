@@ -24,11 +24,11 @@ const Login: React.FC = () => {
 
           {/* Main Content */}
           <div className="flex-1 flex flex-col relative overflow-hidden items-center justify-center p-6 bg-[#eee]">
-            
+
             {/* Ambient Background */}
             <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none flex items-center justify-center">
-                <div className="absolute w-[800px] h-[800px] bg-[rgba(0,111,179,0.08)] blur-[80px] rounded-full -left-40 top-20"></div>
-                <div className="absolute w-[600px] h-[600px] bg-[rgba(0,111,179,0.06)] blur-[60px] rounded-full -right-20 bottom-0"></div>
+              <div className="absolute w-[800px] h-[800px] bg-[rgba(0,111,179,0.08)] blur-[80px] rounded-full -left-40 top-20"></div>
+              <div className="absolute w-[600px] h-[600px] bg-[rgba(0,111,179,0.06)] blur-[60px] rounded-full -right-20 bottom-0"></div>
             </div>
 
             {/* Top Right Button */}
@@ -42,7 +42,7 @@ const Login: React.FC = () => {
             <div className="bg-white border border-[rgba(168,183,199,0.25)] rounded-lg shadow-xl w-full max-w-[448px] p-10 relative z-10">
               {/* Top light bar accent */}
               <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-transparent via-[#60eca880] to-transparent"></div>
-              
+
               <h2 className="text-[#0a132d] text-3xl font-black uppercase tracking-tight mb-8 text-center md:text-left mt-2">
                 Inicio de sesión
               </h2>
@@ -53,9 +53,9 @@ const Login: React.FC = () => {
                   <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">
                     Dirección de correo electrónico o RUT
                   </label>
-                  <input 
-                    type="text" 
-                    placeholder="name@company.com" 
+                  <input
+                    type="text"
+                    placeholder="name@company.com"
                     className="bg-[rgba(74,74,74,0.1)] border-none rounded p-4 text-[#3f3f46] text-base w-full focus:ring-2 focus:ring-[#006fb3] outline-none transition-all"
                   />
                 </div>
@@ -71,9 +71,9 @@ const Login: React.FC = () => {
                     </a>
                   </div>
                   <div className="relative">
-                    <input 
-                      type="password" 
-                      placeholder="••••••••" 
+                    <input
+                      type="password"
+                      placeholder="••••••••"
                       className="bg-[rgba(74,74,74,0.1)] border-none rounded p-4 text-[#3f3f46] text-base w-full focus:ring-2 focus:ring-[#006fb3] outline-none transition-all pr-12"
                     />
                     <button className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 hover:text-gray-700">
@@ -93,9 +93,9 @@ const Login: React.FC = () => {
                 No tienes una cuenta? <span onClick={() => history.push('/register')} className="text-[#006fb3] font-bold hover:underline cursor-pointer">Registrate</span>
               </div>
             </div>
-            
+
             {/* Mobile "Eres parte de la municipalidad" link */}
-             <div className="mt-8 z-10 md:hidden w-full max-w-[448px]">
+            <div className="mt-8 z-10 md:hidden w-full max-w-[448px]">
               <button onClick={() => history.push('/admin/login')} className="bg-[#050d2c] text-white px-6 py-4 w-full rounded font-black text-sm tracking-[1.6px] uppercase hover:bg-[#0a184a] transition-colors shadow-lg">
                 ¿Eres parte de la municipalidad?
               </button>
