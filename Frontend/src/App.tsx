@@ -1,4 +1,23 @@
-import { IonApp, IonContent, setupIonicReact } from '@ionic/react';
+import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonReactRouter } from '@ionic/react-router';
+import { Route } from 'react-router-dom';
+
+import Login from './pages/Login';
+import LoginAdmin from './pages/LoginAdmin';
+import Register from './pages/Register';
+import Dashboard from './pages/Dashboard';
+import DashboardUser from './pages/DashboardUser';
+import DocumentosAdmin from './pages/DocumentosAdmin';
+import DocumentosAdminDetails from './pages/DocumentosAdminDetails';
+import DocumentosUser from './pages/DocumentosUser';
+import DocumentosUserDetails from './pages/DocumentosUserDetails';
+import AbrirTicket from './pages/AbrirTicket';
+import DocumentoExpandidoAdmin from './pages/DocumentoExpandidoAdmin';
+import AgregarDocumentosAdmin from './pages/AgregarDocumentosAdmin';
+import DocumentoExpandidoUser from './pages/DocumentoExpandidoUser';
+import AgregarDocumentosUser from './pages/AgregarDocumentosUser';
+import AdminArchivos from './pages/AdminArchivos';
+import RechazarDocumentoAdmin from './pages/RechazarDocumentoAdmin';
 
 // Inicializar Ionic React
 setupIonicReact();
@@ -6,19 +25,26 @@ setupIonicReact();
 function App() {
   return (
     <IonApp>
-      <IonContent className="ion-padding">
-        <div className="flex flex-col items-center justify-center min-h-screen bg-slate-50 text-slate-800">
-          <div className="p-8 bg-white shadow-xl rounded-2xl max-w-md text-center border border-slate-100">
-            <h1 className="text-3xl font-extrabold text-blue-600 mb-4">GestionArchivosSD</h1>
-            <p className="text-slate-600 mb-6 font-medium">
-              Tu frontend con <strong className="text-indigo-600">Ionic + React</strong> y <strong className="text-indigo-600">Tailwind CSS v4</strong> está listo para ser desarrollado.
-            </p>
-            <div className="inline-block px-4 py-2 bg-blue-50 text-blue-700 rounded-full text-sm font-semibold">
-              ¡Estructura de carpetas lista!
-            </div>
-          </div>
-        </div>
-      </IonContent>
+      <IonReactRouter>
+        <IonRouterOutlet>
+          <Route exact path="/" component={Login} />
+          <Route exact path="/admin/login" component={LoginAdmin} />
+          <Route exact path="/register" component={Register} />
+          <Route exact path="/dashboard" component={Dashboard} />
+          <Route exact path="/dashboard-user" component={DashboardUser} />
+          <Route exact path="/admin/documentos" component={DocumentosAdmin} />
+          <Route exact path="/admin/documentos/detalles" component={DocumentosAdminDetails} />
+          <Route exact path="/admin/documentos/expandido" component={DocumentoExpandidoAdmin} />
+          <Route exact path="/admin/documentos/rechazar" component={RechazarDocumentoAdmin} />
+          <Route exact path="/admin/documentos/agregar" component={AgregarDocumentosAdmin} />
+          <Route exact path="/admin/archivos" component={AdminArchivos} />
+          <Route exact path="/usuario/documentos" component={DocumentosUser} />
+          <Route exact path="/usuario/documentos/detalles" component={DocumentosUserDetails} />
+          <Route exact path="/usuario/documentos/expandido" component={DocumentoExpandidoUser} />
+          <Route exact path="/usuario/documentos/agregar" component={AgregarDocumentosUser} />
+          <Route exact path="/abrir-ticket" component={AbrirTicket} />
+        </IonRouterOutlet>
+      </IonReactRouter>
     </IonApp>
   );
 }
