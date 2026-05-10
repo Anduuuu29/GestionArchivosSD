@@ -10,6 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@gobdigital-cl/gob.cl": "^3.0.10",
     "@ionic/react": "^8.8.6",
     "@ionic/react-router": "^8.8.6",
     "@tailwindcss/vite": "^4.3.0",

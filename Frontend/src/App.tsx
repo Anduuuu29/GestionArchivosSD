@@ -2,22 +2,20 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 import { Route } from 'react-router-dom';
 
-import Login from './pages/Login';
-import LoginAdmin from './pages/LoginAdmin';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import DashboardUser from './pages/DashboardUser';
-import DocumentosAdmin from './pages/DocumentosAdmin';
-import DocumentosAdminDetails from './pages/DocumentosAdminDetails';
-import DocumentosUser from './pages/DocumentosUser';
-import DocumentosUserDetails from './pages/DocumentosUserDetails';
-import AbrirTicket from './pages/AbrirTicket';
-import DocumentoExpandidoAdmin from './pages/DocumentoExpandidoAdmin';
-import AgregarDocumentosAdmin from './pages/AgregarDocumentosAdmin';
-import DocumentoExpandidoUser from './pages/DocumentoExpandidoUser';
-import AgregarDocumentosUser from './pages/AgregarDocumentosUser';
-import AdminArchivos from './pages/AdminArchivos';
-import RechazarDocumentoAdmin from './pages/RechazarDocumentoAdmin';
+import AuthRoot from './pages/auth/AuthRoot';
+import Dashboard from './pages/admin/Dashboard';
+import DashboardUser from './pages/user/DashboardUser';
+import DocumentosAdmin from './pages/admin/DocumentosAdmin';
+import DocumentosAdminDetails from './pages/admin/DocumentosAdminDetails';
+import DocumentosUser from './pages/user/DocumentosUser';
+import DocumentosUserDetails from './pages/user/DocumentosUserDetails';
+import AbrirTicket from './pages/user/AbrirTicket';
+import DocumentoExpandidoAdmin from './pages/admin/DocumentoExpandidoAdmin';
+import AgregarDocumentosAdmin from './pages/admin/AgregarDocumentosAdmin';
+import DocumentoExpandidoUser from './pages/user/DocumentoExpandidoUser';
+import AgregarDocumentosUser from './pages/user/AgregarDocumentosUser';
+import AdminArchivos from './pages/admin/AdminArchivos';
+import RechazarDocumentoAdmin from './pages/admin/RechazarDocumentoAdmin';
 
 // Inicializar Ionic React
 setupIonicReact();
@@ -27,9 +25,9 @@ function App() {
     <IonApp>
       <IonReactRouter>
         <IonRouterOutlet>
-          <Route exact path="/" component={Login} />
-          <Route exact path="/admin/login" component={LoginAdmin} />
-          <Route exact path="/register" component={Register} />
+          <Route exact path="/" component={AuthRoot} />
+          <Route exact path="/admin/login" component={AuthRoot} />
+          <Route exact path="/register" component={AuthRoot} />
           <Route exact path="/dashboard" component={Dashboard} />
           <Route exact path="/dashboard-user" component={DashboardUser} />
           <Route exact path="/admin/documentos" component={DocumentosAdmin} />
