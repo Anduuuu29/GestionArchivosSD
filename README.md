@@ -11,13 +11,13 @@ En los lugares donde se trabaja con grandes documentaciones siempre existirá el
 * Gestión de archivos mediante filtrado.
 * Clasificación de procesos (Terminado / No terminado).
 * Limpieza de archivos con más de cierta cantidad de tiempo de antigüedad.
-* 
+* Vecinos pueden abrir ticket de soporte
 
 ### No funcionales
 * Fácil de utilizar.
-* Cumplimiento de las normas nacionales.
+* Cumplimiento del FrameWork del Gobierno.
 * Controles de seguridad en los documentos.
-* Accesible para todo público
+* Accesible para todo público (Vecinos y Personas de la Municipalidad)
 
 
 ### Links
