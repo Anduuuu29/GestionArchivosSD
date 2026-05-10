@@ -100,7 +100,7 @@ const Login: React.FC = () => {
         <button
           className="btn-primary"
           style={{ marginTop: 4, backgroundColor: 'rgba(5,13,44,0.95)' }}
-          onClick={() => history.push('/dashboard-user')}
+          onClick={() => history.push('/usuario/dashboard')}
         >
           Ingresar
         </button>

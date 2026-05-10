@@ -1,6 +1,9 @@
 /* Core CSS required for Ionic components to work properly */
 @import "@ionic/react/css/core.css";
 
+/* Framework Gobierno de Chile (gob.cl) — incluye fuentes e íconos cl-* */
+@import "@gobdigital-cl/gob.cl/dist/css/gob.min.css";
+
 /* Basic CSS for apps built with Ionic */
 @import "@ionic/react/css/normalize.css";
 @import "@ionic/react/css/structure.css";

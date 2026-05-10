@@ -162,7 +162,7 @@ const Register: React.FC = () => {
 
     // Si todo es válido:
     console.log("Formulario válido", form);
-    history.push('/dashboard-user'); // Redirigir
+    history.push('/usuario/dashboard'); // Redirigir
   };
 
   const pwdStrength = checkPasswordStrength(form.password);

@@ -29,7 +29,7 @@ function App() {
           <Route exact path="/admin/login" component={AuthRoot} />
           <Route exact path="/register" component={AuthRoot} />
           <Route exact path="/dashboard" component={Dashboard} />
-          <Route exact path="/dashboard-user" component={DashboardUser} />
+          <Route exact path="/usuario/dashboard" component={DashboardUser} />
           <Route exact path="/admin/documentos" component={DocumentosAdmin} />
           <Route exact path="/admin/documentos/detalles" component={DocumentosAdminDetails} />
           <Route exact path="/admin/documentos/expandido" component={DocumentoExpandidoAdmin} />
