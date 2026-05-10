@@ -92,6 +92,15 @@ La página será totalmente usable, cada función cumplirá su rol.
 Para funciones primordiales se crearon botones que hacen que se pueda llegar con un solo click o maximo 2
 #### Claridad estructural 
 El sistema sigue una estructura la cual hace que para el usuario sea totalmente intuitivo
+## Creación del Proyecto en IonicReact
+### (a)Uso de ReactRouter
+Esto se cumple y evidencia en el archivo "package.json" donde se ve la presencia de "@ionic/react-router" y "react-router-dom". Además, todas las rutas principales se pueden observar en "src/App.tsx", utilizando componentes como <IonReactRouter> e <IonRouterOutlet>, además del componente <Route> usado para cada endpoint.
+### (b)Rutas públicas y Rutas protegidas
+(Falta implementar rutas protegidas creo)
+### (c)Redirecciones
+En el proyecto se utilizan redirecciones utilizando el Hook "useHistory()" nativo de React Router Dom. Esto se visualiza en el archivo de inicio de sesión (src/pages/Login.tsx) así como en la barra lateral del DashBoard (src/pages/Dashboard.tsx). Cuando un usuario realiza una acción, las funciones lo redireccionan para enviarlos de forma fluida a la ruta de destino
+### (d)Estructura modular de vistar
+Todo el FrontEnd hace uso de separación de responsabilidades por medio de módulos. En el directorio "src/pages" exiten archivos ".tsx" para cada vista de la aplicación (Login.tsx, DashBoard.tsx, etc...). Luego, estos módulos se importan en el enrutamiento central de "src/App.tsx", lo que mejora el mantenimiento y escalabilidad de cada vista por separado.
 
 
 
