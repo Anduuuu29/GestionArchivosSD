@@ -8,7 +8,7 @@ En los lugares donde se trabaja con grandes documentaciones siempre existirá el
 * Capacidad de subir archivos e identificarlos. (Admin / User)
 * Clasificar archivos según parametros dados. (Admin)
 * Eliminación de archivos repetidos. (Admin)
-* Busqueda de archivos mediante filtrado. ((Admin / User))
+* Busqueda de archivos mediante filtrado. (Admin / User)
 * Clasificación de procesos (Terminado / No terminado). (Admin)
 * Limpieza de archivos con más de cierta cantidad de tiempo de antigüedad. (Admin)
 * Abrir ticket de soporte(User)
