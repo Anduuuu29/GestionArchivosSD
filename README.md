@@ -1,6 +1,6 @@
 # GestionArchivosSD
 
-## Justicación del Problema
+## Justificación del Problema
 En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos, hoy en dia se encuentran documentos en físico, los cuales se pueden perder, manchar, mojar, lo cual puede causar que se pierdan para siempre, también hay archivos en digital pero distribuidos por todos los computadores, no hay una aplicación que administre todo y simplifique la tarea del municipio. Por otro lado los vecinos tampoco cuentan con una pagina pertinente para ver el estado de sus tramites o mandar nuevos. Nosotros abarcamos todas estas problematicas y creamos una pagina de administración de archivos, a esta podrán acceder tanto trabajadores de la municipalidad como los vecinos, cada uno tendrá un perfil independiente y podra ver el estado de sus tramites sin la necesidad de ir a preguntar presencialmente, agilizando y ahorrando tiempo. En cambio la municipalidad tendra una base común donde vera todos los archivos subidos, estos podrán filtrarse para encontrar lo que se busca con mayor rapidez y eficacia, también se podrá configurar el borrado automatica de duplicados (En caso de existir) y eliminación por antiguedad. Con esto se logra subsanar tanto las falencias que existen por dentro del municipio en cuanto la Gestión de archivos y la falta de transparecia frente a los vecinos.
 
 
