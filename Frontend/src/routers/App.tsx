@@ -2,24 +2,24 @@ import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
 
 
-import AuthRoot from './pages/auth/AuthRoot';
-import Dashboard from './pages/admin/Dashboard';
-import DashboardUser from './pages/user/DashboardUser';
-import DocumentosAdmin from './pages/admin/DocumentosAdmin';
-import DocumentosAdminDetails from './pages/admin/DocumentosAdminDetails';
-import DocumentosUser from './pages/user/DocumentosUser';
-import DocumentosUserDetails from './pages/user/DocumentosUserDetails';
-import AbrirTicket from './pages/user/AbrirTicket';
-import DocumentoExpandidoAdmin from './pages/admin/DocumentoExpandidoAdmin';
-import AgregarDocumentosAdmin from './pages/admin/AgregarDocumentosAdmin';
-import DocumentoExpandidoUser from './pages/user/DocumentoExpandidoUser';
-import AgregarDocumentosUser from './pages/user/AgregarDocumentosUser';
-import AdminArchivos from './pages/admin/AdminArchivos';
-import RechazarDocumentoAdmin from './pages/admin/RechazarDocumentoAdmin';
+import AuthRoot from '../pages/auth/AuthRoot';
+import Dashboard from '../pages/admin/Dashboard';
+import DashboardUser from '../pages/user/DashboardUser';
+import DocumentosAdmin from '../pages/admin/DocumentosAdmin';
+import DocumentosAdminDetails from '../pages/admin/DocumentosAdminDetails';
+import DocumentosUser from '../pages/user/DocumentosUser';
+import DocumentosUserDetails from '../pages/user/DocumentosUserDetails';
+import AbrirTicket from '../pages/user/AbrirTicket';
+import DocumentoExpandidoAdmin from '../pages/admin/DocumentoExpandidoAdmin';
+import AgregarDocumentosAdmin from '../pages/admin/AgregarDocumentosAdmin';
+import DocumentoExpandidoUser from '../pages/user/DocumentoExpandidoUser';
+import AgregarDocumentosUser from '../pages/user/AgregarDocumentosUser';
+import AdminArchivos from '../pages/admin/AdminArchivos';
+import RechazarDocumentoAdmin from '../pages/admin/RechazarDocumentoAdmin';
 
-import { AuthProvider } from './contexts/AuthContext';
-import ProtectedRoute from './components/ProtectedRoute';
-import PublicRoute from './components/PublicRoute';
+import { AuthProvider } from '../contexts/AuthContext';
+import ProtectedRoute from '../components/ProtectedRoute';
+import PublicRoute from '../components/PublicRoute';
 
 // Inicializar Ionic React
 setupIonicReact();
@@ -36,7 +36,7 @@ function App() {
             <PublicRoute exact path="/register" component={AuthRoot} />
 
             {/* Rutas Protegidas de Administrador */}
-            <ProtectedRoute exact path="/dashboard" component={Dashboard} requiredRole="admin" />
+            <ProtectedRoute exact path="/admin/dashboard" component={Dashboard} requiredRole="admin" />
             <ProtectedRoute exact path="/admin/documentos" component={DocumentosAdmin} requiredRole="admin" />
             <ProtectedRoute exact path="/admin/documentos/detalles" component={DocumentosAdminDetails} requiredRole="admin" />
             <ProtectedRoute exact path="/admin/documentos/expandido" component={DocumentoExpandidoAdmin} requiredRole="admin" />

@@ -9,30 +9,61 @@ import {
   notificationsOutline,
   settingsOutline,
   logOutOutline,
+  timeOutline,
 } from 'ionicons/icons';
 import { useLocation, useHistory } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
 
-interface UserLayoutProps {
-  children: ReactNode;
+export interface NavItem {
+  label: string;
+  icon: string;
+  path: string;
 }
 
-const navItems = [
+interface UserLayoutProps {
+  children: ReactNode;
+  customNavItems?: NavItem[];
+  userRole?: string;
+  userName?: string;
+  userInitials?: string;
+  onNewTramite?: () => void;
+  showLogs?: boolean;
+}
+
+const defaultNavItems: NavItem[] = [
   { label: 'Dashboard',    icon: homeOutline,         path: '/usuario/dashboard' },
   { label: 'Documentos',   icon: documentTextOutline,  path: '/usuario/documentos' },
   { label: 'Abrir Ticket', icon: ticketOutline,        path: '/abrir-ticket' },
 ];
 
-const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
+const UserLayout: React.FC<UserLayoutProps> = ({ 
+  children,
+  customNavItems,
+  userRole = 'Vecino',
+  userName = 'USER',
+  userInitials = '',
+  onNewTramite,
+  showLogs = false
+}) => {
   const history = useHistory();
   const location = useLocation();
   const { logout } = useAuth();
+
+  const activeNavItems = customNavItems || defaultNavItems;
 
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
     logout();
+  };
+
+  const handleNewTramite = () => {
+    if (onNewTramite) {
+      onNewTramite();
+    } else {
+      history.push('/usuario/documentos/agregar');
+    }
   };
 
   return (
@@ -119,7 +150,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
             color: #4a4a4a;
             letter-spacing: 1.2px;
             text-transform: uppercase;
-            white-space: nowrap;
+            line-height: 1.3;
           }
 
           /* Bottom section */
@@ -166,8 +197,14 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
             width: 32px;
             height: 32px;
             background: #353535;
+            color: #eeeeee;
             border-radius: 12px;
             flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
           }
           .ul-sb-user-info { flex: 1; min-width: 0; }
           .ul-sb-user-name {
@@ -309,7 +346,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
 
               {/* Navigation */}
               <nav className="ul-sb-nav">
-                {navItems.map((item) => (
+                {activeNavItems.map((item) => (
                   <div
                     key={item.path}
                     className={`ul-sb-item${isActive(item.path) ? ' active' : ''}`}
@@ -331,18 +368,24 @@ const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
             <div className="ul-sb-bottom">
               <button
                 className="ul-sb-btn-nuevo"
-                onClick={() => history.push('/usuario/documentos/agregar')}
+                onClick={handleNewTramite}
               >
                 <IonIcon icon={addOutline} />
                 Nuevo Trámite
               </button>
 
               <div className="ul-sb-divider">
+                {showLogs && (
+                  <div className="ul-sb-item" style={{ marginBottom: '8px' }}>
+                    <IonIcon icon={timeOutline} />
+                    <span className="ul-sb-label">Logs</span>
+                  </div>
+                )}
                 <div className="ul-sb-user-row">
-                  <div className="ul-sb-avatar" />
+                  <div className="ul-sb-avatar">{userInitials}</div>
                   <div className="ul-sb-user-info">
-                    <div className="ul-sb-user-name">USER</div>
-                    <div className="ul-sb-user-role">Vecino</div>
+                    <div className="ul-sb-user-name">{userName}</div>
+                    <div className="ul-sb-user-role">{userRole}</div>
                   </div>
                   <button
                     className="ul-sb-logout-btn"

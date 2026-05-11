@@ -22,7 +22,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredRole, component
         if (requiredRole && role !== requiredRole) {
           // Logged in, but wrong role -> redirect to appropriate dashboard
           if (role === 'admin') {
-            return <Redirect to="/dashboard" />;
+            return <Redirect to="/admin/dashboard" />;
           } else {
             return <Redirect to="/usuario/dashboard" />;
           }

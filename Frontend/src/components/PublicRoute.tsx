@@ -13,7 +13,7 @@ const PublicRoute: React.FC<RouteProps> = ({ component: Component, ...rest }) =>
         if (isAuthenticated) {
           // Already logged in -> redirect to respective dashboard
           if (role === 'admin') {
-            return <Redirect to="/dashboard" />;
+            return <Redirect to="/admin/dashboard" />;
           } else {
             return <Redirect to="/usuario/dashboard" />;
           }

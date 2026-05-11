@@ -43,7 +43,7 @@ const DocumentoExpandidoAdmin: React.FC = () => {
 
               <nav className="mt-4">
                 <ul className="flex flex-col">
-                  <li onClick={() => history.push('/dashboard')} className="flex items-center px-4 py-3 gap-3 hover:bg-[#e0e0e0] cursor-pointer transition-colors">
+                  <li onClick={() => history.push('/admin/dashboard')} className="flex items-center px-4 py-3 gap-3 hover:bg-[#e0e0e0] cursor-pointer transition-colors">
                     <IonIcon icon={homeOutline} className="text-[#4a4a4a] text-lg" />
                     <span className="font-['Inter',sans-serif] font-medium text-[#4a4a4a] text-xs tracking-widest uppercase">
                       Dashboard
