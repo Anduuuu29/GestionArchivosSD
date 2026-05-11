@@ -4,7 +4,19 @@
 * Andrés Pérez
 * David Henríquez
 ## Pasos para ejecutar el programa
-1. 
+### Requisitos previos
+1. Node.js: Asegurese de tener instalado Node.js
+2. Terminal: Debe tener abierto una terminal
+### Paso 1
+Navegar a la carpeta FrontEnd, para esto hay que ingresar el siguiente comando:
+"cd Frontend"
+### Paso 2
+Si es la primera vez que lo ejecutas, necesitas las librerías necesarias, para esto hay que colocar el siguiente comando:
+"npm install"
+### Paso 3
+Iniciar el servidor local
+"npm run dev"
+
 ## Justificación del Problema (1.2)
 En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos. Hoy en día se encuentran documentos en físico, los cuales se pueden perder, manchar y/o mojar, y que puede causar que se pierdan para siempre. También hay archivos en digital que están distribuidos por todos los computadores, no existiendo así una aplicación o programa que administre todo y simplifique la tarea del municipio. Los vecinos tampoco cuentan con una página pertinente para ver el estado de sus trámites o mandar nuevos. 
 
