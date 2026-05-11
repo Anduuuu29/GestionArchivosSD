@@ -1,25 +1,27 @@
 # GestionArchivosSD
 
 ## Justificación del Problema (1.2)
-En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos, hoy en dia se encuentran documentos en físico, los cuales se pueden perder, manchar, mojar, lo cual puede causar que se pierdan para siempre, también hay archivos en digital pero distribuidos por todos los computadores, no hay una aplicación que administre todo y simplifique la tarea del municipio. Por otro lado los vecinos tampoco cuentan con una pagina pertinente para ver el estado de sus tramites o mandar nuevos. Nosotros abarcamos todas estas problematicas y creamos una pagina de administración de archivos, a esta podrán acceder tanto trabajadores de la municipalidad como los vecinos, cada uno tendrá un perfil independiente y podra ver el estado de sus tramites sin la necesidad de ir a preguntar presencialmente, agilizando y ahorrando tiempo. En cambio la municipalidad tendra una base común donde vera todos los archivos subidos, estos podrán filtrarse para encontrar lo que se busca con mayor rapidez y eficacia, también se podrá configurar el borrado automatica de duplicados (En caso de existir) y eliminación por antiguedad. Con esto se logra subsanar tanto las falencias que existen por dentro del municipio en cuanto la Gestión de archivos y la falta de transparecia frente a los vecinos.
+En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos. Hoy en día se encuentran documentos en físico, los cuales se pueden perder, manchar y/o mojar, lo que puede causar que se pierdan para siempre. También hay archivos en digital que están distribuidos por todos los computadores, no existiendo así una aplicación o programa que administre todo y simplifique la tarea del municipio. Los vecinos tampoco cuentan con una pagina pertinente para ver el estado de sus tramites o mandar nuevos. 
+
+Es por ello que nosotros abarcamos todas estas problematicas y creamos una página de administración de archivos, a la que podrán acceder tanto trabajadores de la municipalidad como vecinos. Cada uno tendrá un perfil independiente y podrá ver el estado de sus trámites sin la necesidad de ir a preguntar presencialmente, agilizando y ahorrando tiempo. La municipalidad tendrá una base común donde verá todos los archivos subidos, que podrán filtrarse para encontrar lo que se busca con mayor rapidez y eficacia. También se podrá configurar el borrado automatico de duplicados (en caso de existir) y la eliminación por antiguedad. Con esto se logra subsanar tanto las falencias que existen por dentro del municipio en cuanto la gestión de archivos como la falta de transparecia frente a los vecinos.
 
 
 
 ## Requerimientos(1.1)
 ### Funcionales
-* Capacidad de subir archivos e identificarlos. (Admin / User)
-* Clasificar archivos según parametros dados. (Admin)
+* Capacidad de subir archivos e identificarlos. (Admin / Usuario)
+* Clasificar archivos según parámetros dados. (Admin)
 * Eliminación de archivos repetidos. (Admin)
-* Busqueda de archivos mediante filtrado. (Admin / User)
+* Busqueda de archivos mediante filtrado. (Admin / Usuario)
 * Clasificación de procesos (Terminado / No terminado). (Admin)
 * Limpieza de archivos con más de cierta cantidad de tiempo de antigüedad. (Admin)
-* Abrir ticket de soporte(User)
+* Posibilidad de abrir ticket de soporte. (Usuario)
 
 ### No funcionales
 * Fácil de utilizar.
 * Cumplimiento del FrameWork del Gobierno.
 * Controles de seguridad en los documentos.
-* Accesible para todo público (Vecinos y Personas de la Municipalidad)
+* Accesible para todo público (vecinos y personas de la municipalidad).
 
 ## Navegación
 
@@ -44,63 +46,63 @@ En la municipalidad de Santo Domingo se afronta el gran problema de la mala admi
 * /usuario/documentos/expandido
 ### (b) Relaciones jerárquicas
 #### Nivel 1
-* Dashboard (Admin y User)
-* Register (Admin y User)
-* Login (Admin y User)
+* Dashboard (Admin y Usuario)
+* Register (Admin y Usuario)
+* Login (Admin y Usuario)
 #### Nivel 2
-* Documentos (Admin y User)
-* Abrir-ticket (User)
+* Documentos (Admin y Usuario)
+* Abrir-ticket (Usuario)
 * Archivos (Admin)
-* Agregar (Admin y User)
+* Agregar (Admin y Usuario)
 #### Nivel 3
-* Documentos/detalles (Admin y User)
-* Documentos/expandido (Admin y User)
+* Documentos/detalles (Admin y Usuario)
+* Documentos/expandido (Admin y Usuario)
 ### (c) Flujo de navegación entre funcionalidades 
-#### El flujo de navegación se ve en el Figma
+#### El flujo de navegación se ve en Figma
 ### (d) Diferenciación de acceso según roles
-Usuario solo ve su perfil, sus documentos y puede abrir un ticket que estara vinculado a su perfil
-Admin puede ver su perfil, los documentos subidos (todos), agregar archivos al sistema, rechazarlos y administrarlos. Teniendo acceso a rutas protegidas como /admin/documentos/rechazar o /admin/documentos/expandido, las cuales son inaccesibles por el Rol Usuario.
+Usuario solo ve su perfil, sus documentos y puede abrir un ticket que estará vinculado a su perfil.
+Admin puede ver su perfil, todos los documentos subidos, agregar archivos al sistema, rechazarlos y administrarlos. Tiene acceso a rutas protegidas como /admin/documentos/rechazar o /admin/documentos/expandido, las cuales son inaccesibles por el Rol Usuario.
 ### (e) Flujo principal de tareas
 #### Ingresar como Admin
-El flujo sería: Login -> Dar click a "¿Eres parte de la municipalidad? -> Ingresar
+El flujo sería: Login -> Dar click a "¿Eres parte de la municipalidad?" -> Ingresar
 #### Ingresar como Usuario
 El flujo sería: Login -> Ingresar
 #### Registrarse
-El flujo sería: Login -> Dar click a "Registrate" -> Crear
+El flujo sería: Login -> Dar click a "Regístrate" -> Crear
 #### Ver un documento especifico resumido
-El flujo sería: Dashboard -> Documentos -> Dar click a el ojo.
-#### Ver un documento especifico Completo
-El flujo sería: Dashboard -> Documentos -> Dar click a el ojo -> Observar.
-#### Rechazar un Documentos
-El flujo sería: Dashboard -> Documentos -> Dar click a el ojo -> Observar -> Rechazar-> Confirmar Rechazo.
-#### Nuevo Tramite
+El flujo sería: Dashboard -> Documentos -> Dar click al ojo.
+#### Ver un documento especifico completo
+El flujo sería: Dashboard -> Documentos -> Dar click al ojo -> Observar.
+#### Rechazar un documento
+El flujo sería: Dashboard -> Documentos -> Dar click a el ojo -> Observar -> Rechazar -> Confirmar Rechazo.
+#### Nuevo Trámite
 El flujo sería: Dashboard -> Dar click a "Nuevo Trámite" -> Rellenar formulario -> Aceptar.
 #### Abrir Ticket de soporte
 El flujo sería: Dashboard -> Abrir Ticket -> Rellenar formulario -> Enviar Ticket.
 ### (f) Puntos criticos de interacción
-Register: El usuario/admin no podrá avanzar sin rellenar todos los campos obligatorios
-Login: El usuario/admin no podrá avanzar sin rellenar todos los campos obligatorios. En caso de no tener cuenta deberá crearse una
-Rechazar Documento: Si el admin decide rechazar un documento es irreversible, es decir no tiene vuelta atras, por lo que se pide confirmación
+Register: El usuario/admin no podrá avanzar sin rellenar todos los campos obligatorios.
+Login: El usuario/admin no podrá avanzar sin rellenar todos los campos obligatorios. En caso de no tener cuenta deberá crear una.
+Rechazar Documento: Rechazar un documento es irreversible, es decir, no se podría recuperar luego. Es por ello que se pide confirmación de parte del Admin.
 ### (g) Coherencia de experiencia entre dispositivos 
-Esto se logrará mediante la utilización de un diseño responsive el cual se adaptará en diferentes tamaños de pantallas
+Esto se logrará mediante la utilización de un diseño "responsive", el cuál se adaptará en diferentes tamaños de pantallas.
 ### (h) Justificación de las Decisiones 
 #### Escalabilidad
-Se utilizarán rutas dinamicas, lo cual garantiza escalabilidad en el sistema, dado que si el dia de mañana hay una gran cantidad de documentos no tengamos que crear una ruta para cada uno.
+Se utilizarán rutas dinámicas, lo cuál garantiza escalabilidad en el sistema, dado que si el día de mañana hay una gran cantidad de documentos, no es necesario crear una ruta para cada uno.
 #### Usabilidad
 La página será totalmente usable, cada función cumplirá su rol.
 #### Eficiencia de interacción
-Para funciones primordiales se crearon botones que hacen que se pueda llegar con un solo click o maximo 2
+Para funciones primordiales se crearon botones que hacen que se pueda llegar con un 1 o 2 clicks.
 #### Claridad estructural 
-El sistema sigue una estructura la cual hace que para el usuario sea totalmente intuitivo
+El sistema sigue una estructura intuitiva para el usuario.
 ## Creación del Proyecto en IonicReact
 ### (a) Uso de ReactRouter
-Esto se cumple y evidencia en el archivo "package.json" donde se ve la presencia de "@ionic/react-router" y "react-router-dom". Además, todas las rutas principales se pueden observar en "src/App.tsx", utilizando componentes como <IonReactRouter> e <IonRouterOutlet>, además del componente <Route> usado para cada endpoint.
-### (b) Rutas públicas y Rutas protegidas
-(Falta implementar rutas protegidas creo)
+Esto se cumple y evidencia en el archivo "package.json", donde se ve la presencia de "@ionic/react-router" y "react-router-dom". Además, todas las rutas principales se pueden observar en "src/App.tsx", utilizando componentes como <IonReactRouter> e <IonRouterOutlet>, además del componente <Route> usado para cada endpoint.
+### (b) Rutas públicas y protegidas
+Se implementaron rutas públicas y protegidas utilizando PublicRoute y ProtectedRoute respectivamente. Esto hace que aquellos con el rol Usuario no puedan ingresar en pestañas de los Admin y viceversa.
 ### (c) Redirecciones
-En el proyecto se utilizan redirecciones utilizando el Hook "useHistory()" nativo de React Router Dom. Esto se visualiza en el archivo de inicio de sesión (src/pages/Login.tsx) así como en la barra lateral del DashBoard (src/pages/Dashboard.tsx). Cuando un usuario realiza una acción, las funciones lo redireccionan para enviarlos de forma fluida a la ruta de destino
-### (d) Estructura modular de vistar
-Todo el FrontEnd hace uso de separación de responsabilidades por medio de módulos. En el directorio "src/pages" exiten archivos ".tsx" para cada vista de la aplicación (Login.tsx, DashBoard.tsx, etc...). Luego, estos módulos se importan en el enrutamiento central de "src/App.tsx", lo que mejora el mantenimiento y escalabilidad de cada vista por separado.
+En el proyecto se utilizan redirecciones utilizando el Hook "useHistory()" nativo de React Router Dom. Esto se visualiza en el archivo de inicio de sesión (src/pages/Login.tsx), así como en la barra lateral del Dashboard (src/pages/Dashboard.tsx). Cuando un usuario realiza una acción, las funciones lo redireccionan para enviarlos de forma fluida a la ruta de destino.
+### (d) Estructura modular de vistas
+Todo el FrontEnd hace uso de separación de responsabilidades por medio de módulos. En el directorio "src/pages" existen archivos ".tsx" para cada vista de la aplicación (Login.tsx, DashBoard.tsx, etc...). Luego, estos módulos se importan en el enrutamiento central de "src/App.tsx", lo que mejora el mantenimiento y escalabilidad de cada vista por separado.
 
 
 
