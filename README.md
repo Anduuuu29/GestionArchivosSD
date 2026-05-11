@@ -7,7 +7,7 @@ Es por ello que nosotros abarcamos todas estas problematicas y creamos una pági
 
 
 
-## Requerimientos(1.1)
+## Requerimientos (1.1)
 ### Funcionales
 * Capacidad de subir archivos e identificarlos. (Admin / Usuario)
 * Clasificar archivos según parámetros dados. (Admin)
