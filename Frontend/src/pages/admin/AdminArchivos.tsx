@@ -18,9 +18,11 @@ import {
 } from 'ionicons/icons';
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 
 const AdminArchivos: React.FC = () => {
   const history = useHistory();
+  const { logout } = useAuth();
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -76,11 +78,16 @@ const AdminArchivos: React.FC = () => {
                   </span>
                 </div>
                 
-                <div className="flex items-center gap-3 mt-4 px-4 py-2 hover:bg-[#e0e0e0] cursor-pointer rounded transition-colors">
-                  <div className="w-8 h-8 rounded-full bg-[#353535]"></div>
+                <div 
+                  className="flex items-center gap-3 mt-4 px-4 py-2 hover:bg-red-100 cursor-pointer rounded transition-colors group"
+                  onClick={logout}
+                >
+                  <div className="w-8 h-8 rounded-full bg-[#353535] group-hover:bg-red-600 flex items-center justify-center transition-colors">
+                    <IonIcon icon={settingsOutline} className="text-white text-sm" />
+                  </div>
                   <div className="flex flex-col">
-                    <span className="font-['Inter',sans-serif] font-bold text-[#111] text-[10px]">ADMIN USER</span>
-                    <span className="font-['Inter',sans-serif] font-normal text-[#4a4a4a] text-[9px]">A</span>
+                    <span className="font-['Inter',sans-serif] font-bold text-[#111] group-hover:text-red-700 text-[10px] transition-colors">CERRAR SESIÓN</span>
+                    <span className="font-['Inter',sans-serif] font-normal text-[#4a4a4a] group-hover:text-red-600 text-[9px] transition-colors">Administrador</span>
                   </div>
                 </div>
               </div>

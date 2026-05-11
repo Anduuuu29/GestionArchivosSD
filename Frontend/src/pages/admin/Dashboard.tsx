@@ -8,6 +8,7 @@ import {
 } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
 import '@gobdigital-cl/gob.cl/dist/css/gob.cl.css';
 
 const imgBg0 = 'http://localhost:3845/assets/d56d7828d32addefc132baafde9f76dc228a03f9.svg';
@@ -45,6 +46,7 @@ const TASKS = [
 const Dashboard: React.FC = () => {
   const history = useHistory();
   const [sideOpen, setSideOpen] = useState(false);
+  const { logout } = useAuth();
 
   const Sidebar = ({ mobile = false }) => (
     <aside
@@ -101,13 +103,16 @@ const Dashboard: React.FC = () => {
             <IonIcon icon={timeOutline} className="text-[#4a4a4a] text-base shrink-0" aria-hidden="true" />
             <span className="font-['Inter',sans-serif] font-medium text-[#4a4a4a] text-[11px] tracking-widest uppercase">Logs</span>
           </div>
-          <div className="flex items-center gap-3 mt-2 px-4 py-2">
-            <div className="w-8 h-8 rounded-xl bg-[#353535] shrink-0 flex items-center justify-center" aria-hidden="true">
+          <div 
+            className="flex items-center gap-3 mt-2 px-4 py-2 hover:bg-red-100 cursor-pointer rounded transition-colors group"
+            onClick={logout}
+          >
+            <div className="w-8 h-8 rounded-xl bg-[#353535] group-hover:bg-red-600 shrink-0 flex items-center justify-center transition-colors" aria-hidden="true">
               <IonIcon icon={personOutline} className="text-white text-sm" />
             </div>
             <div>
-              <p className="font-['Inter',sans-serif] font-bold text-[#111] text-[10px]">ADMIN USER</p>
-              <p className="font-['Inter',sans-serif] text-[#4a4a4a] text-[9px]">Administrador</p>
+              <p className="font-['Inter',sans-serif] font-bold text-[#111] group-hover:text-red-700 text-[10px] transition-colors">CERRAR SESIÓN</p>
+              <p className="font-['Inter',sans-serif] text-[#4a4a4a] group-hover:text-red-600 text-[9px] transition-colors">Administrador</p>
             </div>
           </div>
         </div>

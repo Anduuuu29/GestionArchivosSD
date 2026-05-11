@@ -2,9 +2,12 @@ import { IonIcon } from '@ionic/react';
 import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { useAuth } from '../../contexts/AuthContext';
+
 const Login: React.FC = () => {
   const history = useHistory();
   const [showPassword, setShowPassword] = useState(false);
+  const { login } = useAuth();
 
   return (
     <>
@@ -100,7 +103,7 @@ const Login: React.FC = () => {
         <button
           className="btn-primary"
           style={{ marginTop: 4, backgroundColor: 'rgba(5,13,44,0.95)' }}
-          onClick={() => history.push('/usuario/dashboard')}
+          onClick={() => login('user')}
         >
           Ingresar
         </button>

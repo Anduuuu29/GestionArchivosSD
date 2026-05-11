@@ -10,8 +10,9 @@ import {
   settingsOutline,
   logOutOutline,
 } from 'ionicons/icons';
-import { useHistory, useLocation } from 'react-router-dom';
+import { useLocation, useHistory } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
+import { useAuth } from '../contexts/AuthContext';
 
 interface UserLayoutProps {
   children: ReactNode;
@@ -26,11 +27,12 @@ const navItems = [
 const UserLayout: React.FC<UserLayoutProps> = ({ children }) => {
   const history = useHistory();
   const location = useLocation();
+  const { logout } = useAuth();
 
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = () => {
-    history.push('/');
+    logout();
   };
 
   return (
