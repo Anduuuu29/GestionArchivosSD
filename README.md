@@ -108,7 +108,7 @@ Todo el FrontEnd hace uso de separación de responsabilidades por medio de módu
 
 
 ### Links
-* Link a figma: https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0(1.3)
+* Link a figma(1.3): https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0
 * https://firma.digital.gob.cl/
 * https://framework.digital.gob.cl/colors.html
 * https://framework.digital.gob.cl/
