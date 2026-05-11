@@ -104,8 +104,27 @@ En el proyecto se utilizan redirecciones utilizando el Hook "useHistory()" nativ
 ### (d) Estructura modular de vistas
 Todo el FrontEnd hace uso de separación de responsabilidades por medio de módulos. En el directorio "src/pages" existen archivos ".tsx" para cada vista de la aplicación (Login.tsx, DashBoard.tsx, etc...). Luego, estos módulos se importan en el enrutamiento central de "src/App.tsx", lo que mejora el mantenimiento y escalabilidad de cada vista por separado.
 
-
-
+## Diseño y estructura (1.6)
+### Diseño de pantallas principales
+Se han desarrollado más de 4 pantallas principales, tanto para Admin como usuario.
+Admin: Dashboard, DocumentosAdmin, AdminArchivos, DocumentosAdminDetails, AgregarDocumentosAdmin, RechazarDocumentoAdmin, DocumentoExpandidoAdmin.
+Usuario: DashboardUser, DocumentosUser, AbrirTicket, DocumentosUserDetail, DocumentoExpandidoUser, AgregarDocumentoUser.
+Auth: Login, Register.
+### Estructura de navegación funcional
+La nevegación es coherente y funcional, implementada en "App.tsx" utilizando "IonReactRouter" y "IonRouterOutlet". Se utiliza una lógica de rutas protegidas y públicas basada en roles (admin/user)
+### Uso de componentes propios de Ionic
+Se utilizan componentes base de Ionic como:
+* IonApp
+* IonPage
+* IonContent
+* IontIcon
+* IontRouterOutlet
+### Separación estructural del código
+La estructura cumple con la organización de carpetas:
+* pages contiene todas las pantallas y se encuentra en "src/pages"
+* components contiene las rutas protegidas y publicas y se encuentra en "src/components"
+* routes contiene a "App.tsx", la cual contiene todas las rutas y se encuentra en "src/routes"
+* services esta actualmente vacia dado que es dedicada a servicions de API o lógica de negocio, lo cual aún no se debe implementar. Está en "src/services".
 
 ### Links
 * Link a figma(1.3): https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0
