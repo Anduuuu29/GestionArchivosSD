@@ -1,5 +1,10 @@
 # GestionArchivosSD
-
+## Integrantes
+* Benjamín Sepúlveda
+* Andrés Pérez
+* David Henríquez
+## Pasos para ejecutar el programa
+1. 
 ## Justificación del Problema (1.2)
 En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos. Hoy en día se encuentran documentos en físico, los cuales se pueden perder, manchar y/o mojar, y que puede causar que se pierdan para siempre. También hay archivos en digital que están distribuidos por todos los computadores, no existiendo así una aplicación o programa que administre todo y simplifique la tarea del municipio. Los vecinos tampoco cuentan con una página pertinente para ver el estado de sus trámites o mandar nuevos. 
 
