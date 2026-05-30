@@ -8,7 +8,10 @@ const Login: React.FC = () => {
   const history = useHistory();
   const [showPassword, setShowPassword] = useState(false);
   const { login } = useAuth();
-
+  const [identifier, setIdentifier] = useState('');
+  const [pwd, setpwd] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   return (
     <>
       <h2 style={{
@@ -42,6 +45,8 @@ const Login: React.FC = () => {
             className="auth-field"
             type="text"
             placeholder="nombre@correo.com"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
           />
         </div>
 
@@ -78,6 +83,8 @@ const Login: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               style={{ paddingRight: 48 }}
+              value={pwd}
+              onChange={(e) => setpwd(e.target.value)}
             />
             <button
               onClick={() => setShowPassword(p => !p)}
@@ -103,11 +110,24 @@ const Login: React.FC = () => {
         <button
           className="btn-primary"
           style={{ marginTop: 4, backgroundColor: 'rgba(5,13,44,0.95)' }}
-          onClick={() => login('user')}
+          onClick={async () => {
+            try {
+              setLoading(true);
+              setError('');
+              await login(identifier, pwd);
+              history.push('/usuario/dashboard');
+            } catch (err: any) {
+              setError(err.response?.data?.message || 'Error al iniciar sesión');
+            } finally {
+              setLoading(false);
+            }
+          }}
+          disabled={loading}
         >
-          Ingresar
+          {loading ? 'ingresando...' : 'ingresar'}
         </button>
       </div>
+      {error && <p className="text-red-600 text-sm text-center">{error}</p>}
 
       {/* Registro */}
       <p style={{

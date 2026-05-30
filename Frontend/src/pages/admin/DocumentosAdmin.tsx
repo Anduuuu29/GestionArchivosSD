@@ -17,6 +17,7 @@ import {
 } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
+import { documentosService } from '../../services/documentos.service';
 
 /* ─────────── Types ─────────── */
 type EstadoDoc = 'En Revisión' | 'Urgente' | 'Terminado' | 'Ingresado' | 'Pendiente de Firma';
@@ -34,70 +35,13 @@ interface Documento {
 }
 
 /* ─────────── Mock data ─────────── */
-const DOCS: Documento[] = [
-  {
-    id: 'EXP-2024-0892',
-    solicitante: 'María José Urzúa',
-    rut: '15.432.110-K',
-    tipo: 'Permiso Edificación',
-    fecha: '12 Oct 2023',
-    hora: '09:45',
-    estado: 'En Revisión',
-    descripcion: 'Solicitud de permiso de edificación para construcción de vivienda unifamiliar.',
-    archivos: ['Planos_Arquitectura_V1.pdf', 'Foto_Terreno_Frontal.jpg'],
-  },
-  {
-    id: 'EXP-2024-0893',
-    solicitante: 'Constructora Alerce SpA',
-    rut: '76.012.333-2',
-    tipo: 'Recepción Final',
-    fecha: '12 Oct 2023',
-    hora: '10:20',
-    estado: 'Urgente',
-    descripcion: 'Solicitud de recepción final de obra edificio comercial.',
-    archivos: ['informe_final.pdf'],
-  },
-  {
-    id: 'EXP-2024-0885',
-    solicitante: 'Ricardo Lagos Soto',
-    rut: 'Patente Comercial',
-    tipo: 'Patente Comercial',
-    fecha: '11 Oct 2023',
-    hora: '16:15',
-    estado: 'Terminado',
-    descripcion: 'Otorgamiento de patente.',
-    archivos: ['resolucion.pdf'],
-  },
-  {
-    id: 'EXP-2023-0452',
-    solicitante: 'Andrés Villalobos R.',
-    rut: 'Dir. Obras Municipales',
-    tipo: 'Memorándum Interno',
-    fecha: '24 Oct 2023',
-    hora: '09:45 AM',
-    estado: 'Pendiente de Firma',
-    descripcion: 'Solicitud de revisión técnica - Proyecto Costanera',
-    archivos: ['Memorándum_2023_0452_MuniSD.pdf'],
-  },
-  {
-    id: 'EXP-2024-0894',
-    solicitante: 'Inmobiliaria Mar Azul',
-    rut: 'Modificación Planos',
-    tipo: 'Modificación Planos',
-    fecha: '12 Oct 2023',
-    hora: '11:05',
-    estado: 'Ingresado',
-    descripcion: 'Modificación de planos aprobados para redistribución interior.',
-    archivos: ['planos_modificacion.pdf'],
-  },
-];
 
 /* ─────────── Status badge config ─────────── */
 const STATUS_CONFIG: Record<EstadoDoc, { bg: string; dot: string; text: string; label: string }> = {
   'En Revisión': { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
-  'Urgente':     { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Urgente' },
-  'Terminado':   { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Terminado' },
-  'Ingresado':   { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
+  'Urgente': { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Urgente' },
+  'Terminado': { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Terminado' },
+  'Ingresado': { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
   'Pendiente de Firma': { bg: '#e0f2fe', dot: '#0369a1', text: '#0369a1', label: 'Pendiente de Firma' },
 };
 
@@ -111,22 +55,18 @@ const adminNavItems = [
 const DocumentosAdmin: React.FC = () => {
   const history = useHistory();
   const location = useLocation();
+  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [documentosLoading, setDocumentosLoading] = useState(true);
   const [selected, setSelected] = useState<Documento | null>(null);
   const [viewing, setViewing] = useState(false);
   const [showRechazarModal, setShowRechazarModal] = useState(false);
 
-  // Parse ID from URL parameter to auto-open document (for when coming from Dashboard)
   useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    const docId = params.get('id');
-    if (docId) {
-      // Find the document, matching the string exactly or ignoring the '#' if needed
-      const found = DOCS.find(d => d.id === docId || d.id === `#${docId}` || `#${d.id}` === docId);
-      if (found) {
-        setSelected(found);
-      }
-    }
-  }, [location.search]);
+    documentosService.getAll()
+      .then(res => setDocumentos(res.data.data || res.data))
+      .catch(console.error)
+      .finally(() => setDocumentosLoading(false));
+  }, []);
 
   // Make sure to clean up specific modals when un-selecting
   useEffect(() => {
@@ -407,7 +347,7 @@ const DocumentosAdmin: React.FC = () => {
               </div>
               <p className="du-desc">Gestione y revise la documentación municipal pendiente de resolución.</p>
             </div>
-            
+
             <div className="admin-filters">
               <button className="admin-filter-btn active">Todos</button>
               <button className="admin-filter-btn">Pendientes</button>
@@ -430,11 +370,11 @@ const DocumentosAdmin: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {DOCS.map((doc) => {
+                  {documentos.map((doc) => {
                     const sc = STATUS_CONFIG[doc.estado] || { bg: '#e5e7eb', dot: '#9ca3af', text: '#374151', label: doc.estado };
                     const barColor = sc.dot;
                     const isSelected = selected?.id === doc.id;
-                    
+
                     return (
                       <tr key={doc.id} style={{ backgroundColor: isSelected ? '#f8faff' : '' }}>
                         {/* ID */}
@@ -539,7 +479,7 @@ const DocumentosAdmin: React.FC = () => {
                       <div style={{ width: 64, height: 64, background: '#eef2ff', borderRadius: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                         <IonIcon icon={homeOutline} style={{ fontSize: 28, color: '#00518e' }} />
                       </div>
-                      <span style={{ fontSize: 10, fontWeight: 700, color: '#414751', letterSpacing: 1, textTransform: 'uppercase', fontFamily: 'Public Sans', marginTop: 8, textAlign: 'center' }}>MUNICIPALIDAD<br/>SANTO DOMINGO</span>
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#414751', letterSpacing: 1, textTransform: 'uppercase', fontFamily: 'Public Sans', marginTop: 8, textAlign: 'center' }}>MUNICIPALIDAD<br />SANTO DOMINGO</span>
                     </div>
                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 6 }}>
                       <div style={{ fontSize: 18, fontWeight: 700, color: '#00518e', fontFamily: 'Public Sans' }}>MEMORÁNDUM N° {selected.id.split('-').pop()}</div>
@@ -555,14 +495,14 @@ const DocumentosAdmin: React.FC = () => {
                     <div>
                       <span style={{ color: '#121a34', fontSize: 15, fontFamily: 'Public Sans', fontWeight: 500 }}>Dirección de Obras Municipales</span>
                     </div>
-                    
+
                     <div>
                       <span style={{ fontWeight: 700, color: '#414751', fontSize: 15, fontFamily: 'Public Sans' }}>PARA:</span>
                     </div>
                     <div style={{ display: 'flex', flexDirection: 'column' }}>
                       <span style={{ color: '#121a34', fontSize: 15, fontFamily: 'Public Sans', fontWeight: 500 }}>Secretaría Comunal de Planificación (SECPLA)</span>
                     </div>
-                    
+
                     <div>
                       <span style={{ fontWeight: 700, color: '#414751', fontSize: 15, fontFamily: 'Public Sans' }}>MATERIA:</span>
                     </div>
@@ -585,7 +525,7 @@ const DocumentosAdmin: React.FC = () => {
                   <div className="du-aside-title">Detalles del Documento</div>
                   <div className="du-aside-subtitle">Información de trazabilidad administrativa</div>
                 </div>
-                
+
                 <div className="du-viewer-aside-body">
                   {/* ID */}
                   <div>
@@ -622,9 +562,11 @@ const DocumentosAdmin: React.FC = () => {
                     <div className="du-aside-field">
                       <div className="du-aside-field-lbl">Estado Actual</div>
                       <div style={{ marginTop: 4 }}>
-                        {(() => { const sc = STATUS_CONFIG[selected.estado] || { bg: '#e5e7eb', text: '#374151', label: selected.estado }; return (
-                          <span className="du-aside-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
-                        ); })()}
+                        {(() => {
+                          const sc = STATUS_CONFIG[selected.estado] || { bg: '#e5e7eb', text: '#374151', label: selected.estado }; return (
+                            <span className="du-aside-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                          );
+                        })()}
                       </div>
                     </div>
                   </div>
@@ -646,7 +588,7 @@ const DocumentosAdmin: React.FC = () => {
                         <span className="du-modal-tl-sub" style={{ fontSize: 11 }}>Próximo paso</span>
                       </div>
                     </div>
-                    
+
                     <div style={{ marginTop: 'auto', paddingTop: 32, display: 'flex', flexDirection: 'column', gap: 12 }}>
                       <button className="du-aside-btn-trace">
                         <IonIcon icon={eyeOutline} />
@@ -688,9 +630,11 @@ const DocumentosAdmin: React.FC = () => {
               <div className="du-modal-info-card">
                 <div className="du-modal-info-header">
                   <span className="du-modal-info-title">Estado Actual</span>
-                  {(() => { const sc = STATUS_CONFIG[selected.estado] || { bg: '#e5e7eb', text: '#374151', label: selected.estado }; return (
-                    <span className="du-modal-status-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
-                  ); })()}
+                  {(() => {
+                    const sc = STATUS_CONFIG[selected.estado] || { bg: '#e5e7eb', text: '#374151', label: selected.estado }; return (
+                      <span className="du-modal-status-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                    );
+                  })()}
                 </div>
                 <div className="du-modal-info-box">
                   <div className="du-modal-info-row">
@@ -782,7 +726,7 @@ const DocumentosAdmin: React.FC = () => {
                 <IonIcon icon={closeOutline} />
               </button>
             </div>
-            
+
             <div className="rej-body">
               <div className="rej-alert">
                 <IonIcon icon={warningOutline} className="rej-alert-icon" />
@@ -793,18 +737,18 @@ const DocumentosAdmin: React.FC = () => {
                   </span>
                 </div>
               </div>
-              
+
               <div className="rej-form-group">
                 <label className="rej-label">Motivo del Rechazo <span className="rej-label-req">*</span></label>
-                <textarea 
-                  className="rej-textarea" 
+                <textarea
+                  className="rej-textarea"
                   placeholder="Describa brevemente la razón por la cual se rechaza este documento..."
                   maxLength={500}
                 ></textarea>
                 <span className="rej-counter">0 / 500 caracteres</span>
               </div>
             </div>
-            
+
             <div className="rej-footer">
               <button className="rej-btn-cancel" onClick={() => setShowRechazarModal(false)}>
                 Cancelar

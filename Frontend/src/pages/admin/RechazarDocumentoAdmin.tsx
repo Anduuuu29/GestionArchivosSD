@@ -1,10 +1,10 @@
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
-import { 
-  searchOutline, 
-  notificationsOutline, 
-  settingsOutline, 
-  homeOutline, 
-  documentTextOutline, 
+import {
+  searchOutline,
+  notificationsOutline,
+  settingsOutline,
+  homeOutline,
+  documentTextOutline,
   folderOpenOutline,
   addOutline,
   timeOutline,
@@ -17,16 +17,19 @@ import {
   warningOutline,
   closeCircleOutline
 } from 'ionicons/icons';
-import React from 'react';
-import { useHistory } from 'react-router-dom';
+import React, { useState } from 'react';
+import { useHistory, useParams } from 'react-router-dom';
+import { documentosService } from '../../services/documentos.service';
 
 const RechazarDocumentoAdmin: React.FC = () => {
+  const { id } = useParams<{ id: string }>();
   const history = useHistory();
+  const [motivo, setMotivo] = useState('');
   return (
     <IonPage>
       <IonContent fullscreen>
         <div className="flex w-full min-h-screen font-['Public_Sans',sans-serif] bg-white relative">
-          
+
           {/* Sidebar */}
           <aside className="w-[208px] bg-[#eee] border-r border-[#a8b7c7] flex flex-col justify-between shrink-0 h-screen sticky top-0">
             <div>
@@ -56,7 +59,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
                   <li onClick={() => history.push('/admin/archivos')} className="flex items-center px-4 py-3 gap-3 hover:bg-[#e0e0e0] cursor-pointer transition-colors">
                     <IonIcon icon={folderOpenOutline} className="text-[#4a4a4a] text-lg" />
                     <span className="font-['Inter',sans-serif] font-medium text-[#4a4a4a] text-xs tracking-widest uppercase leading-tight">
-                      Administración<br/>de archivos
+                      Administración<br />de archivos
                     </span>
                   </li>
                 </ul>
@@ -68,7 +71,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
                 <IonIcon icon={addOutline} className="text-lg" />
                 Nuevo Trámite
               </button>
-              
+
               <div className="border-t border-[#353535] pt-4">
                 <div className="flex items-center gap-3 px-4 py-2 hover:bg-[#e0e0e0] cursor-pointer rounded transition-colors">
                   <IonIcon icon={timeOutline} className="text-[#4a4a4a] text-lg" />
@@ -76,7 +79,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
                     Logs
                   </span>
                 </div>
-                
+
                 <div className="flex items-center gap-3 mt-4 px-4 py-2 hover:bg-[#e0e0e0] cursor-pointer rounded transition-colors">
                   <div className="w-8 h-8 rounded-full bg-[#353535]"></div>
                   <div className="flex flex-col">
@@ -90,20 +93,20 @@ const RechazarDocumentoAdmin: React.FC = () => {
 
           {/* Main Content Area */}
           <main className="flex-1 flex flex-col min-w-0 bg-[#f8f9fa] h-screen overflow-hidden">
-            
+
             {/* Topbar */}
             <header className="h-[60px] bg-[#050d2c] flex items-center justify-between px-6 shrink-0 z-20">
               <div className="flex-1 max-w-[448px]">
                 <div className="bg-[#eee] border border-white/20 rounded flex items-center px-4 py-2 gap-3 focus-within:ring-2 ring-white/50 transition-all">
                   <IonIcon icon={searchOutline} className="text-[#4a4a4a]" />
-                  <input 
-                    type="text" 
-                    placeholder="Buscar archivos" 
+                  <input
+                    type="text"
+                    placeholder="Buscar archivos"
                     className="bg-transparent border-none outline-none text-[#4a4a4a] text-sm w-full placeholder:text-[#4a4a4a]/70"
                   />
                 </div>
               </div>
-              
+
               <div className="flex items-center gap-4 text-white">
                 <button className="p-2 hover:bg-white/10 rounded transition-colors">
                   <IonIcon icon={notificationsOutline} className="text-xl" />
@@ -119,7 +122,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
 
             {/* Content Split Container */}
             <div className="flex flex-1 overflow-hidden pointer-events-none opacity-80 filter blur-[1px]">
-              
+
               {/* Document Preview Area */}
               <div className="flex-1 flex flex-col bg-[#f8f9fa] min-w-0">
                 {/* Header Toolbar */}
@@ -152,14 +155,14 @@ const RechazarDocumentoAdmin: React.FC = () => {
                 <div className="flex-1 overflow-auto p-8 bg-[#f8f9fa] flex justify-center">
                   <div className="w-full max-w-[800px] min-h-[1000px] bg-white shadow-md border border-gray-200 p-12 relative flex flex-col">
                     <div className="absolute top-0 left-0 bottom-0 w-2 bg-[#00518e]"></div>
-                    
+
                     <div className="flex justify-between items-start mb-16 pl-6">
                       <div className="flex flex-col items-center">
                         <div className="w-16 h-16 bg-[#eef2fa] rounded flex items-center justify-center text-[#00518e] mb-2">
                           <IonIcon icon={homeOutline} className="text-3xl" />
                         </div>
                         <span className="text-[#121a34] font-bold text-[10px] tracking-widest text-center">
-                          MUNICIPALIDAD<br/>SANTO DOMINGO
+                          MUNICIPALIDAD<br />SANTO DOMINGO
                         </span>
                       </div>
                       <div className="text-right">
@@ -175,7 +178,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
                       </div>
                       <div className="flex">
                         <span className="font-bold text-[#121a34] w-32">PARA:</span>
-                        <span className="text-[#414751]">Secretaría Comunal de Planificación<br/>(SECPLA)</span>
+                        <span className="text-[#414751]">Secretaría Comunal de Planificación<br />(SECPLA)</span>
                       </div>
                       <div className="flex">
                         <span className="font-bold text-[#121a34] w-32">MATERIA:</span>
@@ -245,7 +248,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
 
                   <div className="flex flex-col gap-4">
                     <span className="text-[#121a34] font-semibold text-sm">Historial de Acciones</span>
-                    
+
                     <div className="relative pl-6 flex flex-col gap-6">
                       <div className="absolute top-2 bottom-2 left-2 w-0.5 bg-gray-200"></div>
 
@@ -286,8 +289,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
             <div className="bg-white rounded-xl shadow-xl w-[500px] max-w-[90vw] overflow-hidden flex flex-col">
               <div className="p-6 flex justify-between items-center">
                 <h2 className="text-[#121a34] font-semibold text-xl m-0">Rechazar Documento</h2>
-                <button onClick={() => history.push('/admin/documentos/expandido')} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded-full transition-colors">
-                  <IonIcon icon={closeOutline} className="text-xl" />
+                <button onClick={() => history.push('/admin/documentos')} className="text-gray-500 hover:bg-gray-100 p-1.5 rounded-full transition-colors">                  <IonIcon icon={closeOutline} className="text-xl" />
                 </button>
               </div>
 
@@ -306,20 +308,33 @@ const RechazarDocumentoAdmin: React.FC = () => {
                   <label className="text-[#121a34] text-sm">
                     Motivo del Rechazo <span className="text-red-500">*</span>
                   </label>
-                  <textarea 
+                  <textarea
                     rows={5}
-                    className="border border-gray-300 rounded-lg p-3 text-sm focus:outline-none focus:ring-2 focus:ring-[#00518e]/30 transition-shadow resize-none placeholder:text-gray-400 text-[#121a34]"
-                    placeholder="Describa brevemente la razón por la cual se rechaza este documento..."
+                    maxLength={500}
+                    value={motivo}
+                    onChange={(e) => setMotivo(e.target.value)}
+                    className="w-full border border-gray-300 rounded-lg p-3.5 text-sm resize-none outline-none focus:ring-2 focus:ring-[#00518e]/30"
+                    placeholder="Describa brevemente la razón..."
                   ></textarea>
-                  <span className="text-right text-gray-400 text-xs mt-1">0 / 500 caracteres</span>
+                  <span className="text-right text-gray-400 text-xs mt-1"> {motivo.length} / 500 caracteres</span>
                 </div>
 
                 {/* Modal Actions */}
                 <div className="flex gap-4 pt-2">
-                  <button onClick={() => history.push('/admin/documentos/expandido')} className="flex-1 bg-white border border-[#a8b7c7] text-[#121a34] font-medium py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors">
-                    Cancelar
+                  <button onClick={() => history.push('/admin/documentos')} className="flex-1 bg-white border border-[#a8b7c7] text-[#121a34] font-medium py-2.5 rounded-lg text-sm hover:bg-gray-50 transition-colors">                    Cancelar
                   </button>
-                  <button onClick={() => history.push('/admin/documentos')} className="flex-1 flex items-center justify-center gap-2 bg-[#9a1b24] text-white font-medium py-2.5 rounded-lg text-sm hover:bg-red-800 transition-colors">
+                  <button onClick={async () => {
+                    if (!motivo.trim()) {
+                      alert('Debe ingresar un motivo de rechazo.');
+                      return;
+                    }
+                    try {
+                      await documentosService.rechazar(id, motivo);
+                      history.push('/admin/documentos');
+                    } catch (err: any) {
+                      alert(err.response?.data?.message || 'Error al rechazar el documento');
+                    }
+                  }} className="flex-1 flex items-center justify-center gap-2 bg-[#9a1b24] text-white font-medium py-2.5 rounded-lg text-sm hover:bg-red-800 transition-colors">
                     <IonIcon icon={checkmarkCircleOutline} />
                     Confirmar Rechazo
                   </button>

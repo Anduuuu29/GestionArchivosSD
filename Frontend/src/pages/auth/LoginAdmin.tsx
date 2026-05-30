@@ -1,10 +1,16 @@
 import { IonIcon } from '@ionic/react';
 import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
+import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
 
 const LoginAdmin: React.FC = () => {
+  const history = useHistory();
   const [showPassword, setShowPassword] = useState(false);
+  const [identifier, setIdentifier] = useState('');
+  const [pwd, setPwd] = useState('');
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const { login } = useAuth();
 
   return (
@@ -40,6 +46,8 @@ const LoginAdmin: React.FC = () => {
             className="auth-field"
             type="text"
             placeholder="admin@santodomingo.cl"
+            value={identifier}
+            onChange={(e) => setIdentifier(e.target.value)}
           />
         </div>
 
@@ -76,6 +84,8 @@ const LoginAdmin: React.FC = () => {
               type={showPassword ? 'text' : 'password'}
               placeholder="••••••••"
               style={{ paddingRight: 48 }}
+              value={pwd}
+              onChange={(e) => setPwd(e.target.value)}
             />
             <button
               onClick={() => setShowPassword(p => !p)}
@@ -97,13 +107,33 @@ const LoginAdmin: React.FC = () => {
           </div>
         </div>
 
+        {error && (
+          <p style={{ color: '#ba1a1a', fontSize: 13, fontWeight: 500, margin: 0 }}>{error}</p>
+        )}
+
         {/* Botón ingresar */}
         <button
           className="btn-primary"
           style={{ marginTop: 4, backgroundColor: 'rgba(5,13,44,0.95)' }}
-          onClick={() => login('admin')}
+          disabled={loading}
+          onClick={async () => {
+            if (!identifier.trim() || !pwd.trim()) {
+              setError('Complete todos los campos.');
+              return;
+            }
+            setLoading(true);
+            setError('');
+            try {
+              await login(identifier, pwd);
+              history.push('/admin/dashboard');
+            } catch (err: any) {
+              setError(err.response?.data?.message || 'Credenciales inválidas.');
+            } finally {
+              setLoading(false);
+            }
+          }}
         >
-          Ingresar al panel
+          {loading ? 'Ingresando...' : 'Ingresar al panel'}
         </button>
       </div>
     </>

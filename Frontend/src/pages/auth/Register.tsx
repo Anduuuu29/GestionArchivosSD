@@ -4,18 +4,19 @@ import React, { useState, useEffect, useRef } from 'react';
 import { useHistory } from 'react-router-dom';
 import { regionsAndComunas } from '../../utils/chileData';
 import { validateName, validateEmail, validateRut, checkPasswordStrength } from '../../utils/validators';
-const Combobox = ({ 
-  label, 
-  value, 
-  onChange, 
-  options, 
+import { useAuth } from '../../contexts/AuthContext';
+const Combobox = ({
+  label,
+  value,
+  onChange,
+  options,
   placeholder,
   disabled = false
-}: { 
-  label: string, 
-  value: string, 
-  onChange: (val: string) => void, 
-  options: string[], 
+}: {
+  label: string,
+  value: string,
+  onChange: (val: string) => void,
+  options: string[],
   placeholder: string,
   disabled?: boolean
 }) => {
@@ -39,7 +40,7 @@ const Combobox = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, [value]);
 
-  const filteredOptions = options.filter(opt => 
+  const filteredOptions = options.filter(opt =>
     opt.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
@@ -62,8 +63,8 @@ const Combobox = ({
           disabled={disabled}
           className={`register-field w-full pr-10 ${disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
         />
-        <IonIcon 
-          icon={chevronDownOutline} 
+        <IonIcon
+          icon={chevronDownOutline}
           className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 cursor-pointer pointer-events-none"
         />
       </div>
@@ -72,7 +73,7 @@ const Combobox = ({
         <ul className="absolute top-[100%] left-0 w-full mt-1 max-h-48 overflow-y-auto bg-white border border-gray-200 shadow-xl rounded-md z-50">
           {filteredOptions.length > 0 ? (
             filteredOptions.map((opt, idx) => (
-              <li 
+              <li
                 key={idx}
                 className="px-4 py-2 hover:bg-[#006fb3] hover:text-white cursor-pointer text-sm font-['Inter'] text-gray-700 transition-colors"
                 onClick={() => {
@@ -95,7 +96,7 @@ const Combobox = ({
 
 const Register: React.FC = () => {
   const history = useHistory();
-  
+  const { register } = useAuth();
   // States
   const [form, setForm] = useState({
     nombre: '',
@@ -111,7 +112,7 @@ const Register: React.FC = () => {
 
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  
+
   // Errors
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
@@ -119,7 +120,7 @@ const Register: React.FC = () => {
 
   const handleInputChange = (field: string, value: string | boolean) => {
     setForm(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear specific error on change
     if (errors[field]) {
       setErrors(prev => {
@@ -142,7 +143,7 @@ const Register: React.FC = () => {
     setForm(prev => ({ ...prev, region, comuna: '' })); // Reset comuna on region change
   };
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     const newErrors: { [key: string]: string } = {};
 
     if (!form.nombre || !validateName(form.nombre)) newErrors.nombre = 'Nombre inválido';
@@ -160,13 +161,16 @@ const Register: React.FC = () => {
       return;
     }
 
-    // Si todo es válido:
-    console.log("Formulario válido", form);
-    history.push('/usuario/dashboard'); // Redirigir
+    try {
+      await register(form);
+      history.push('/');
+    } catch (err: any) {
+      setErrors({ general: err.response?.data?.message || 'Error al registrarse' });
+    }
   };
 
   const pwdStrength = checkPasswordStrength(form.password);
-  
+
   // Determinar color de las barras de seguridad
   const getStrengthBarColor = (index: number) => {
     if (pwdStrength === 0) return '#c0c7d2';
@@ -193,14 +197,14 @@ const Register: React.FC = () => {
       </h2>
 
       <div className="flex flex-col gap-6">
-        
+
         {/* Nombre y Apellido */}
         <div className="flex flex-col md:flex-row gap-6 w-full">
           <div className="flex-1 flex flex-col gap-2">
             <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">Nombre</label>
-            <input 
-              type="text" 
-              placeholder="Ej. Juan" 
+            <input
+              type="text"
+              placeholder="Ej. Juan"
               className={`auth-field ${errors.nombre ? 'border-[#ba1a1a] shadow-[0_0_0_3px_rgba(186,26,26,0.1)]' : ''}`}
               value={form.nombre}
               onChange={(e) => handleInputChange('nombre', e.target.value)}
@@ -209,9 +213,9 @@ const Register: React.FC = () => {
           </div>
           <div className="flex-1 flex flex-col gap-2">
             <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">Apellido</label>
-            <input 
-              type="text" 
-              placeholder="Ej. Pérez" 
+            <input
+              type="text"
+              placeholder="Ej. Pérez"
               className={`auth-field ${errors.apellido ? 'border-[#ba1a1a] shadow-[0_0_0_3px_rgba(186,26,26,0.1)]' : ''}`}
               value={form.apellido}
               onChange={(e) => handleInputChange('apellido', e.target.value)}
@@ -223,9 +227,9 @@ const Register: React.FC = () => {
         {/* RUT */}
         <div className="flex flex-col gap-2">
           <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">RUT</label>
-          <input 
-            type="text" 
-            placeholder="12.345.678-9" 
+          <input
+            type="text"
+            placeholder="12.345.678-9"
             className={`auth-field ${errors.rut ? 'border-[#ba1a1a] shadow-[0_0_0_3px_rgba(186,26,26,0.1)]' : ''}`}
             value={form.rut}
             onChange={(e) => handleInputChange('rut', e.target.value)}
@@ -236,9 +240,9 @@ const Register: React.FC = () => {
         {/* Correo */}
         <div className="flex flex-col gap-2">
           <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">Correo</label>
-          <input 
-            type="email" 
-            placeholder="name@company.com" 
+          <input
+            type="email"
+            placeholder="name@company.com"
             className={`auth-field ${errors.correo ? 'border-[#ba1a1a] shadow-[0_0_0_3px_rgba(186,26,26,0.1)]' : ''}`}
             value={form.correo}
             onChange={(e) => handleInputChange('correo', e.target.value)}
@@ -275,9 +279,9 @@ const Register: React.FC = () => {
         <div className="flex flex-col gap-2">
           <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">Contraseña</label>
           <div className="relative">
-            <input 
+            <input
               type={showPassword ? 'text' : 'password'}
-              placeholder="••••••••" 
+              placeholder="••••••••"
               className={`auth-field pr-12 ${errors.password ? 'border-[#ba1a1a] shadow-[0_0_0_3px_rgba(186,26,26,0.1)]' : ''}`}
               value={form.password}
               onChange={(e) => handleInputChange('password', e.target.value)}
@@ -290,15 +294,15 @@ const Register: React.FC = () => {
               <IonIcon icon={showPassword ? eyeOffOutline : eyeOutline} className="text-xl" />
             </button>
           </div>
-          
+
           {/* Medidor de fuerza */}
           {form.password && (
             <div className="flex flex-col gap-1 mt-1">
               <div className="flex gap-1 h-[6px]">
                 {[0, 1, 2, 3].map(index => (
-                  <div 
-                    key={index} 
-                    className="flex-1 rounded-full transition-colors duration-300" 
+                  <div
+                    key={index}
+                    className="flex-1 rounded-full transition-colors duration-300"
                     style={{ backgroundColor: getStrengthBarColor(index) }}
                   />
                 ))}
@@ -313,9 +317,9 @@ const Register: React.FC = () => {
         <div className="flex flex-col gap-2">
           <label className="text-[#0a132d] text-[10px] font-bold uppercase tracking-[1px]">Confirmar Contraseña</label>
           <div className="relative">
-            <input 
+            <input
               type={showConfirmPassword ? 'text' : 'password'}
-              placeholder="••••••••" 
+              placeholder="••••••••"
               className={`auth-field pr-12 ${errors.confirmPassword ? 'border-[#ba1a1a] shadow-[0_0_0_3px_rgba(186,26,26,0.1)]' : ''}`}
               value={form.confirmPassword}
               onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
@@ -333,8 +337,8 @@ const Register: React.FC = () => {
 
         {/* Términos y Condiciones */}
         <div className="flex items-start gap-3 mt-2">
-          <input 
-            type="checkbox" 
+          <input
+            type="checkbox"
             className={`custom-checkbox mt-0.5 ${errors.aceptaTerminos ? 'border-[#ba1a1a]' : ''}`}
             checked={form.aceptaTerminos}
             onChange={(e) => handleInputChange('aceptaTerminos', e.target.checked)}
@@ -346,7 +350,7 @@ const Register: React.FC = () => {
         {errors.aceptaTerminos && <span className="text-[#ba1a1a] text-xs font-medium -mt-1 ml-7">{errors.aceptaTerminos}</span>}
 
         {/* Submit Button */}
-        <button 
+        <button
           className="btn-primary mt-4"
           onClick={handleSubmit}
         >
@@ -358,8 +362,8 @@ const Register: React.FC = () => {
       {/* Login Link */}
       <div className="mt-8 text-center text-[15px] text-[#404750]">
         ¿Ya tienes una cuenta?{' '}
-        <span 
-          onClick={() => history.push('/')} 
+        <span
+          onClick={() => history.push('/')}
           className="text-[#00568c] font-bold hover:underline cursor-pointer"
         >
           Inicia sesión

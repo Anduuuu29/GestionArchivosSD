@@ -1,51 +1,57 @@
 import React, { createContext, useContext, useState } from 'react';
 import type { ReactNode } from 'react';
+import { authService } from '../services/auth.service';
 
 type Role = 'admin' | 'user' | null;
 
 interface AuthContextType {
   isAuthenticated: boolean;
   role: Role;
-  login: (role: Role) => void;
+  login: (identifier: string, password: string) => Promise<void>;
+  register: (data: any) => Promise<void>;
   logout: () => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  // Initialize state synchronously from localStorage to avoid flash of content or effect re-renders
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
-    return localStorage.getItem('isAuthenticated') === 'true';
+    return !!localStorage.getItem('token');
   });
-  
+
   const [role, setRole] = useState<Role>(() => {
     return (localStorage.getItem('role') as Role) || null;
   });
 
-  const login = (newRole: Role) => {
-    setIsAuthenticated(true);
-    setRole(newRole);
+  const login = async (identifier: string, password: string) => {
+    const res = await authService.login(identifier, password);
+    const { token, usuario } = res.data.data;
+    localStorage.setItem('token', token);
+    localStorage.setItem('role', usuario.rol);
     localStorage.setItem('isAuthenticated', 'true');
-    if (newRole) {
-      localStorage.setItem('role', newRole);
-    }
+    setIsAuthenticated(true);
+    setRole(usuario.rol);
+  };
+
+  const register = async (data: any) => {
+    const res = await authService.register(data);
+    return res.data;
   };
 
   const logout = () => {
     setIsAuthenticated(false);
     setRole(null);
-    localStorage.removeItem('isAuthenticated');
+    localStorage.removeItem('token');
     localStorage.removeItem('role');
+    localStorage.removeItem('isAuthenticated');
   };
 
   return (
-    <AuthContext.Provider value={{ isAuthenticated, role, login, logout }}>
+    <AuthContext.Provider value={{ isAuthenticated, role, login, register, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
-
-// eslint-disable-next-line react-refresh/only-export-components
 export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {

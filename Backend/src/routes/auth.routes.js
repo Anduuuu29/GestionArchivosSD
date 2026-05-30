@@ -18,7 +18,10 @@ router.post('/register', async (req, res) => {
         rol: 'user'
     });
     res.status(201).json({
-        data: { id: newUser.id, nombre, correo, rol: newUser.rol }
+        data: {
+            token: 'mock-token-' + Date.now(),
+            usuario: { id: newUser.id, nombre, correo, rol: newUser.rol }
+        }
     });
 
 });
@@ -36,7 +39,10 @@ router.post('/login', async (req, res) => {
         return res.status(401).json({ message: 'Correo o contraseña incorrectos' });
     }
     res.status(200).json({
-        data: { id: user.id, nombre: user.nombre, correo: user.correo, rol: user.rol }
+        data: {
+            token: 'mock-token-' + Date.now(),
+            usuario: { id: user.id, nombre: user.nombre, correo: user.correo, rol: user.rol }
+        }
     });
 });
 

@@ -17,6 +17,7 @@ import {
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
+import { misDocumentosService } from '../../services/mis-documentos.service';
 
 /* ─────────── Types ─────────── */
 type EstadoDoc = 'En Revisión' | 'Rechazado' | 'Aprobado' | 'Ingresado';
@@ -35,96 +36,35 @@ interface Documento {
 }
 
 /* ─────────── Mock data ─────────── */
-const DOCS: Documento[] = [
-  {
-    id: 'EXP-2024-0892',
-    solicitante: 'USER',
-    rut: '12.345.678-9',
-    tipo: 'Permiso Edificación',
-    fecha: '12 Oct 2023',
-    hora: '09:45',
-    estado: 'En Revisión',
-    descripcion: 'Solicitud de permiso de edificación para construcción de vivienda unifamiliar en Av. Principal 123.',
-    archivos: ['planos_arquitectura.pdf', 'memoria_calculo.pdf', 'certificado_titulo.pdf'],
-  },
-  {
-    id: 'EXP-2024-0893',
-    solicitante: 'USER',
-    rut: '12.345.678-9',
-    tipo: 'Recepción Final',
-    fecha: '12 Oct 2023',
-    hora: '10:20',
-    estado: 'Rechazado',
-    descripcion: 'Solicitud de recepción final de obra edificio comercial en Calle Los Aromos 45.',
-    archivos: ['informe_final.pdf', 'fotografias_obra.pdf'],
-    motivoRechazo: 'Documentación incompleta: falta certificado de instalaciones eléctricas y acta de bomberos.',
-  },
-  {
-    id: 'EXP-2024-0894',
-    solicitante: 'USER',
-    rut: '12.345.678-9',
-    tipo: 'Modificación Planos',
-    fecha: '12 Oct 2023',
-    hora: '11:05',
-    estado: 'Aprobado',
-    descripcion: 'Modificación de planos aprobados para redistribución interior de local comercial.',
-    archivos: ['planos_modificacion.pdf', 'informe_estructural.pdf'],
-  },
-  {
-    id: 'EXP-2024-0895',
-    solicitante: 'USER',
-    rut: '12.345.678-9',
-    tipo: 'Obra Menor',
-    fecha: '13 Oct 2023',
-    hora: '08:30',
-    estado: 'Ingresado',
-    descripcion: 'Ampliación de vivienda existente: construcción de dormitorio adicional.',
-    archivos: ['croquis_ampliacion.pdf'],
-  },
-  {
-    id: 'EXP-2024-0896',
-    solicitante: 'USER',
-    rut: '12.345.678-9',
-    tipo: 'Permiso Edificación',
-    fecha: '13 Oct 2023',
-    hora: '14:15',
-    estado: 'En Revisión',
-    descripcion: 'Construcción de bodega industrial en zona norte del parque industrial.',
-    archivos: ['planos_bodega.pdf', 'informe_suelo.pdf', 'permiso_ambiental.pdf'],
-  },
-];
 
 /* ─────────── Status badge config ─────────── */
 const STATUS_CONFIG: Record<EstadoDoc, { bg: string; dot: string; text: string; label: string }> = {
   'En Revisión': { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
-  'Rechazado':   { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
-  'Aprobado':    { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
-  'Ingresado':   { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
+  'Rechazado': { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
+  'Aprobado': { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
+  'Ingresado': { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
 };
 
 const STATUS_ICON: Record<EstadoDoc, string> = {
   'En Revisión': hourglassOutline,
-  'Rechazado':   closeCircleOutline,
-  'Aprobado':    checkmarkCircleOutline,
-  'Ingresado':   documentTextOutline,
+  'Rechazado': closeCircleOutline,
+  'Aprobado': checkmarkCircleOutline,
+  'Ingresado': documentTextOutline,
 };
 
 /* ─────────── Component ─────────── */
 const DocumentosUser: React.FC = () => {
   const history = useHistory();
+  const [documentos, setDocumentos] = useState<Documento[]>([]);
+  const [documentosLoading, setDocumentosLoading] = useState(true);
   const [selected, setSelected] = useState<Documento | null>(null);
   const [viewing, setViewing] = useState(false);
 
   useEffect(() => {
-    const handleReset = (event: Event) => {
-      const customEvent = event as CustomEvent;
-      if (customEvent.detail === '/usuario/documentos') {
-        setViewing(false);
-        setSelected(null);
-      }
-    };
-    window.addEventListener('reset-page', handleReset);
-    return () => window.removeEventListener('reset-page', handleReset);
+    misDocumentosService.getAll()
+      .then(res => setDocumentos(res.data.data || res.data))
+      .catch(console.error)
+      .finally(() => setDocumentosLoading(false));
   }, []);
 
   return (
@@ -333,12 +273,12 @@ const DocumentosUser: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {DOCS.map((doc) => {
+                  {documentos.map((doc) => {
                     const sc = STATUS_CONFIG[doc.estado];
                     const barColor = doc.estado === 'En Revisión' ? '#00518e'
                       : doc.estado === 'Aprobado' ? '#166534'
-                      : doc.estado === 'Rechazado' ? '#9a1b24'
-                      : '#9ca3af';
+                        : doc.estado === 'Rechazado' ? '#9a1b24'
+                          : '#9ca3af';
                     return (
                       <tr key={doc.id}>
                         {/* ID */}
@@ -346,7 +286,7 @@ const DocumentosUser: React.FC = () => {
                           <div className="du-id-cell">
                             <div className="du-id-bar" style={{ background: barColor }} />
                             <div className="du-id-text">
-                              <div>#{doc.id.split('-').slice(0,2).join('-')}-</div>
+                              <div>#{doc.id.split('-').slice(0, 2).join('-')}-</div>
                               <div>{doc.id.split('-')[2]}</div>
                             </div>
                           </div>
@@ -385,7 +325,7 @@ const DocumentosUser: React.FC = () => {
 
             {/* Pagination */}
             <div className="du-pagination">
-              <span>Mostrando 1-5 de {DOCS.length} expedientes</span>
+              <span>Mostrando 1-5 de {documentos.length} expedientes</span>
               <div className="du-pag-btns">
                 <button className="du-pag-btn du-pag-icon" disabled><IonIcon icon={chevronBackOutline} /></button>
                 <button className="du-pag-btn active">1</button>
@@ -529,9 +469,11 @@ const DocumentosUser: React.FC = () => {
 
                     <div className="du-aside-field">
                       <div className="du-aside-field-lbl">Estado Actual</div>
-                      {(() => { const sc = STATUS_CONFIG[selected.estado]; return (
-                        <span className="du-aside-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
-                      ); })()}
+                      {(() => {
+                        const sc = STATUS_CONFIG[selected.estado]; return (
+                          <span className="du-aside-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                        );
+                      })()}
                     </div>
                   </div>
 
@@ -556,7 +498,7 @@ const DocumentosUser: React.FC = () => {
                         <div className="du-aside-tl-date">Próximo paso</div>
                       </div>
                     </div>
-                    
+
                     <button className="du-aside-btn-trace">
                       <IonIcon icon={eyeOutline} />
                       Ver Trazabilidad Completa
@@ -593,9 +535,11 @@ const DocumentosUser: React.FC = () => {
               <div className="du-modal-info-card">
                 <div className="du-modal-info-header">
                   <span className="du-modal-info-title">Estado Actual</span>
-                  {(() => { const sc = STATUS_CONFIG[selected.estado]; return (
-                    <span className="du-modal-status-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
-                  ); })()}
+                  {(() => {
+                    const sc = STATUS_CONFIG[selected.estado]; return (
+                      <span className="du-modal-status-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
+                    );
+                  })()}
                 </div>
                 <div className="du-modal-info-box">
                   <div className="du-modal-info-row">
