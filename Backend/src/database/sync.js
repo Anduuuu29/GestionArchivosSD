@@ -1,3 +1,5 @@
+const { hashSync } = require('bcryptjs');
+
 const sequelize = require('./connection');
 const { Usuario, Documento, ArchivoDocumento, Ticket, Trazabilidad } = require('./models');
 
@@ -13,8 +15,8 @@ async function syncDatabase() {
         const userCount = await Usuario.count();
         if (userCount === 0) {
             await Usuario.bulkCreate([
-                { nombre: 'Admin', apellido: 'Municipalidad', rut: '11.111.111-1', correo: 'admin@santodomingo.cl', password: 'admin123', rol: 'admin' },
-                { nombre: 'María José', apellido: 'Urzúa', rut: '15.432.110-K', correo: 'maria@correo.com', password: 'user123', rol: 'user' },
+                { nombre: 'Admin', apellido: 'Municipalidad', rut: '11.111.111-1', correo: 'admin@santodomingo.cl', password: hashSync('admin123', 10), rol: 'admin' },
+                { nombre: 'María José', apellido: 'Urzúa', rut: '15.432.110-K', correo: 'maria@correo.com', password: hashSync('user123', 10), rol: 'user' },
             ]);
 
             await Documento.bulkCreate([
