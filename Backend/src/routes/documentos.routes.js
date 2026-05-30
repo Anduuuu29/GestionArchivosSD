@@ -39,16 +39,17 @@ router.post('/', async (req, res) => {
     if (!categoria || !asunto) {
         return res.status(400).json({ error: 'Categoria y asunto son obligatorios' });
     }
-
+    const user = await Usuario.findByPk(req.usuario.id, { attributes: ['nombre', 'apellido', 'rut'] });
+    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
     const newDocumento = await Documento.create({
         idExpediente: 'EXP-' + Date.now().toString(),
-        solicitante: 'USUARIO EJEMPLO',
-        rut: '21.788.222-2',
+        solicitante: `${user.nombre} ${user.apellido}`,
+        rut: user.rut,
         tipo: categoria,
         asunto,
         descripcion: descripcion || '',
         estado: 'Ingresado',
-        usuarioId: 1
+        usuarioId: req.usuario.id
     });
     res.status(201).json({ data: newDocumento });
 });

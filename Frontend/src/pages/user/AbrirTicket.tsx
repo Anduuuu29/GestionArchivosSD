@@ -72,7 +72,7 @@ const AbrirTicket: React.FC = () => {
       await ticketsService.create({ asunto, descripcion });
       history.push('/usuario/dashboard');
     } catch (err) {
-      console.error(err);
+      alert(err.response?.data?.message || 'Error al enviar el ticket');
     }
   };
 

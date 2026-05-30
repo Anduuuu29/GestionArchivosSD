@@ -14,7 +14,7 @@ router.post('/', async (req, res) => {
         asunto,
         descripcion: descripcion || '',
         estado: 'Abierto',
-        usuarioId: 1
+        usuarioId: req.usuario.id
     });
     res.status(201).json({ data: newTicket });
 });
