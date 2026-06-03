@@ -19,10 +19,18 @@ api.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('token');
-            localStorage.removeItem('role');
-            localStorage.removeItem('isAuthenticated');
-            window.location.href = '/';
+            // Avoid redirecting if the error is from the auth endpoints
+            const isAuthEndpoint = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+            
+            if (!isAuthEndpoint) {
+                localStorage.removeItem('token');
+                localStorage.removeItem('role');
+                localStorage.removeItem('isAuthenticated');
+                
+                if (window.location.pathname !== '/' && window.location.pathname !== '/admin/login') {
+                    window.location.href = '/';
+                }
+            }
         }
         return Promise.reject(error);
     }
