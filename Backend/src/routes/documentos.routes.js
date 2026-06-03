@@ -6,98 +6,128 @@ const { Documento, Usuario } = require('../database/models');
 //Obtiene todos los documentos
 
 router.get('/', async (req, res) => {
-    const { estado, page = 1, limit = 10 } = req.query;
-    const where = {};
-    if (estado && estado !== 'todos') where.estado = estado;
+    try {
+        const { estado, page = 1, limit = 10 } = req.query;
+        const where = {};
+        if (estado && estado !== 'todos') where.estado = estado;
 
-    const { rows, count } = await Documento.findAndCountAll({
-        where,
-        include: [{ model: Usuario, attributes: ['nombre', 'correo'] }],
-        offset: (page - 1) * limit,
-        limit: Number(limit),
-        order: [['createdAt', 'DESC']],
-    });
-    res.json({ data: rows, total: count, page: Number(page), limit: Number(limit) });
+        const { rows, count } = await Documento.findAndCountAll({
+            where,
+            include: [{ model: Usuario, attributes: ['nombre', 'correo'] }],
+            offset: (page - 1) * limit,
+            limit: Number(limit),
+            order: [['createdAt', 'DESC']],
+        });
+        res.json({ data: rows, total: count, page: Number(page), limit: Number(limit) });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
+    }
 });
 
 //GET /api/documentos/:id
 //Obtiene un documento por ID
 
 router.get('/:id', async (req, res) => {
-    const documento = await Documento.findByPk(req.params.id);
-    if (!documento) {
-        return res.status(404).json({ message: 'Documento no encontrado' });
+    try {
+        const documento = await Documento.findByPk(req.params.id);
+        if (!documento) {
+            return res.status(404).json({ message: 'Documento no encontrado' });
+        }
+        res.json({ data: documento });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
-    res.json({ data: documento });
 });
 
 //POST /api/documentos
 //Crea un nuevo documento
 
 router.post('/', async (req, res) => {
-    const { categoria, asunto, descripcion } = req.body;
-    if (!categoria || !asunto) {
-        return res.status(400).json({ error: 'Categoria y asunto son obligatorios' });
+    try {
+        const { categoria, asunto, descripcion } = req.body;
+        if (!categoria || !asunto) {
+            return res.status(400).json({ error: 'Categoria y asunto son obligatorios' });
+        }
+        const user = await Usuario.findByPk(req.usuario.id, { attributes: ['nombre', 'apellido', 'rut'] });
+        if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
+        const newDocumento = await Documento.create({
+            idExpediente: 'EXP-' + Date.now().toString(),
+            solicitante: `${user.nombre} ${user.apellido}`,
+            rut: user.rut,
+            tipo: categoria,
+            asunto,
+            descripcion: descripcion || '',
+            estado: 'Ingresado',
+            usuarioId: req.usuario.id
+        });
+        res.status(201).json({ data: newDocumento });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
-    const user = await Usuario.findByPk(req.usuario.id, { attributes: ['nombre', 'apellido', 'rut'] });
-    if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
-    const newDocumento = await Documento.create({
-        idExpediente: 'EXP-' + Date.now().toString(),
-        solicitante: `${user.nombre} ${user.apellido}`,
-        rut: user.rut,
-        tipo: categoria,
-        asunto,
-        descripcion: descripcion || '',
-        estado: 'Ingresado',
-        usuarioId: req.usuario.id
-    });
-    res.status(201).json({ data: newDocumento });
 });
 
 //PUT /api/documentos/:id
 //Actualiza un documento
 
 router.put('/:id', async (req, res) => {
-    const doc = await Documento.findByPk(req.params.id);
-    if (!doc) {
-        return res.status(404).json({ message: 'Documento no encontrado' });
+    try {
+        const doc = await Documento.findByPk(req.params.id);
+        if (!doc) {
+            return res.status(404).json({ message: 'Documento no encontrado' });
+        }
+        const { tipo, descripcion, estado } = req.body;
+        if (tipo) doc.tipo = tipo;
+        if (descripcion) doc.descripcion = descripcion;
+        if (estado) doc.estado = estado;
+        await doc.save();
+        res.json({ data: doc });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
-    const { tipo, descripcion, estado } = req.body;
-    if (tipo) doc.tipo = tipo;
-    if (descripcion) doc.descripcion = descripcion;
-    if (estado) doc.estado = estado;
-    await doc.save();
-    res.json({ data: doc });
 });
 
 //DELETE /api/documentos/:id
 //Elimina un documento
 
 router.delete('/:id', async (req, res) => {
-    const doc = await Documento.findByPk(req.params.id);
-    if (!doc) {
-        return res.status(404).json({ message: 'Documento no encontrado' });
+    try {
+        const doc = await Documento.findByPk(req.params.id);
+        if (!doc) {
+            return res.status(404).json({ message: 'Documento no encontrado' });
+        }
+        await doc.destroy();
+        res.json({ message: 'Documento eliminado correctamente' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
-    await doc.destroy();
-    res.json({ message: 'Documento eliminado correctamente' });
 });
 
 //POST /api/documentos/:id/rechazar
 //Rechaza un documento
 
 router.post('/:id/rechazar', async (req, res) => {
-    const doc = await Documento.findByPk(req.params.id);
-    if (!doc) {
-        return res.status(404).json({ message: 'Documento no encontrado' });
+    try {
+        const doc = await Documento.findByPk(req.params.id);
+        if (!doc) {
+            return res.status(404).json({ message: 'Documento no encontrado' });
+        }
+        const { motivo } = req.body;
+        if (!motivo) {
+            return res.status(400).json({ message: 'El motivo del rechazo es obligatorio' });
+        }
+        doc.estado = 'Rechazado';
+        doc.motivoRechazo = motivo;
+        await doc.save();
+        res.json({ data: doc });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Error interno del servidor' });
     }
-    const { motivo } = req.body;
-    if (!motivo) {
-        return res.status(400).json({ message: 'El motivo del rechazo es obligatorio' });
-    }
-    doc.estado = 'Rechazado';
-    doc.motivoRechazo = motivo;
-    await doc.save();
-    res.json({ data: doc });
 });
 
 module.exports = router;

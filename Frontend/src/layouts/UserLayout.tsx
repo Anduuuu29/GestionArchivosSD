@@ -40,15 +40,19 @@ const defaultNavItems: NavItem[] = [
 const UserLayout: React.FC<UserLayoutProps> = ({ 
   children,
   customNavItems,
-  userRole = 'Vecino',
-  userName = 'USER',
-  userInitials = '',
+  userRole,
+  userName,
+  userInitials,
   onNewTramite,
   showLogs = false
 }) => {
   const history = useHistory();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, userName: contextUserName, role: contextRole } = useAuth();
+
+  const displayUserName = contextUserName || userName || 'Usuario';
+  const displayRole = contextRole === 'admin' ? 'Administrador' : (contextRole === 'user' ? 'Usuario' : userRole || 'Usuario');
+  const displayInitials = displayUserName.charAt(0).toUpperCase();
 
   const activeNavItems = customNavItems || defaultNavItems;
 
@@ -382,10 +386,10 @@ const UserLayout: React.FC<UserLayoutProps> = ({
                   </div>
                 )}
                 <div className="ul-sb-user-row">
-                  <div className="ul-sb-avatar">{userInitials}</div>
+                  <div className="ul-sb-avatar">{displayInitials}</div>
                   <div className="ul-sb-user-info">
-                    <div className="ul-sb-user-name">{userName}</div>
-                    <div className="ul-sb-user-role">{userRole}</div>
+                    <div className="ul-sb-user-name">{displayUserName}</div>
+                    <div className="ul-sb-user-role">{displayRole}</div>
                   </div>
                   <button
                     className="ul-sb-logout-btn"
