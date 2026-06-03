@@ -37,13 +37,21 @@ interface Documento {
 /* ─────────── Mock data ─────────── */
 
 /* ─────────── Status badge config ─────────── */
-const STATUS_CONFIG: Record<EstadoDoc, { bg: string; dot: string; text: string; label: string }> = {
-  'En Revisión': { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
-  'Urgente': { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Urgente' },
-  'Terminado': { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Terminado' },
-  'Ingresado': { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
-  'Pendiente de Firma': { bg: '#e0f2fe', dot: '#0369a1', text: '#0369a1', label: 'Pendiente de Firma' },
+type StatusConfig = { bg: string; dot: string; text: string; label: string };
+
+const STATUS_CONFIG: Record<string, StatusConfig> = {
+  'En Revisión':        { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
+  'Rechazado':          { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
+  'Aprobado':           { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
+  'Ingresado':          { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
+  'Urgente':            { bg: '#fff3cd', dot: '#d97706', text: '#92400e', label: 'Urgente' },
+  'Terminado':          { bg: '#d1fae5', dot: '#047857', text: '#065f46', label: 'Terminado' },
+  'Pendiente de Firma': { bg: '#fef3c7', dot: '#b45309', text: '#78350f', label: 'Pendiente de Firma' },
 };
+
+const DEFAULT_STATUS: StatusConfig = { bg: '#f3f4f6', dot: '#6b7280', text: '#374151', label: 'Desconocido' };
+
+const getStatusConfig = (estado: string): StatusConfig => STATUS_CONFIG[estado] || DEFAULT_STATUS;
 
 const adminNavItems = [
   { label: 'Dashboard', icon: homeOutline, path: '/admin/dashboard' },
@@ -371,7 +379,7 @@ const DocumentosAdmin: React.FC = () => {
                 </thead>
                 <tbody>
                   {documentos.map((doc) => {
-                    const sc = STATUS_CONFIG[doc.estado] || { bg: '#e5e7eb', dot: '#9ca3af', text: '#374151', label: doc.estado };
+                    const sc = getStatusConfig(doc.estado);
                     const barColor = sc.dot;
                     const isSelected = selected?.id === doc.id;
 
@@ -563,7 +571,7 @@ const DocumentosAdmin: React.FC = () => {
                       <div className="du-aside-field-lbl">Estado Actual</div>
                       <div style={{ marginTop: 4 }}>
                         {(() => {
-                          const sc = STATUS_CONFIG[selected.estado] || { bg: '#e5e7eb', text: '#374151', label: selected.estado }; return (
+                          const sc = getStatusConfig(selected.estado); return (
                             <span className="du-aside-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
                           );
                         })()}
@@ -631,7 +639,7 @@ const DocumentosAdmin: React.FC = () => {
                 <div className="du-modal-info-header">
                   <span className="du-modal-info-title">Estado Actual</span>
                   {(() => {
-                    const sc = STATUS_CONFIG[selected.estado] || { bg: '#e5e7eb', text: '#374151', label: selected.estado }; return (
+                    const sc = getStatusConfig(selected.estado); return (
                       <span className="du-modal-status-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
                     );
                   })()}

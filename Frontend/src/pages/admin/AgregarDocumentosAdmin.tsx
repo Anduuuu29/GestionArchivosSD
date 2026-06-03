@@ -221,7 +221,8 @@ const AgregarDocumentosAdmin: React.FC = () => {
               try {
                 await documentosService.create({ categoria, asunto, descripcion });
                 history.push('/admin/documentos');
-              } catch (err: any) {
+              } catch (error) {
+                const err = error as { response?: { data?: { message?: string } } };
                 alert(err.response?.data?.message || 'Error al crear el documento');
               }
             }}

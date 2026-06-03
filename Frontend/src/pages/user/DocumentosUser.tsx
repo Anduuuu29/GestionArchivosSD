@@ -14,6 +14,7 @@ import {
   createOutline,
   copyOutline,
   printOutline,
+  alertCircleOutline,
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
@@ -38,18 +39,30 @@ interface Documento {
 /* ─────────── Mock data ─────────── */
 
 /* ─────────── Status badge config ─────────── */
-const STATUS_CONFIG: Record<EstadoDoc, { bg: string; dot: string; text: string; label: string }> = {
-  'En Revisión': { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
-  'Rechazado': { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
-  'Aprobado': { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
-  'Ingresado': { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
+type StatusConfig = { bg: string; dot: string; text: string; label: string };
+
+const STATUS_CONFIG: Record<string, StatusConfig> = {
+  'En Revisión':        { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
+  'Rechazado':          { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
+  'Aprobado':           { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
+  'Ingresado':          { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
+  'Urgente':            { bg: '#fff3cd', dot: '#d97706', text: '#92400e', label: 'Urgente' },
+  'Terminado':          { bg: '#d1fae5', dot: '#047857', text: '#065f46', label: 'Terminado' },
+  'Pendiente de Firma': { bg: '#fef3c7', dot: '#b45309', text: '#78350f', label: 'Pendiente de Firma' },
 };
 
-const STATUS_ICON: Record<EstadoDoc, string> = {
+const DEFAULT_STATUS: StatusConfig = { bg: '#f3f4f6', dot: '#6b7280', text: '#374151', label: 'Desconocido' };
+
+const getStatusConfig = (estado: string): StatusConfig => STATUS_CONFIG[estado] || DEFAULT_STATUS;
+
+const STATUS_ICON: Record<string, string> = {
   'En Revisión': hourglassOutline,
   'Rechazado': closeCircleOutline,
   'Aprobado': checkmarkCircleOutline,
   'Ingresado': documentTextOutline,
+  'Urgente': alertCircleOutline,
+  'Terminado': checkmarkCircleOutline,
+  'Pendiente de Firma': documentTextOutline,
 };
 
 /* ─────────── Component ─────────── */
@@ -62,7 +75,25 @@ const DocumentosUser: React.FC = () => {
 
   useEffect(() => {
     misDocumentosService.getAll()
-      .then(res => setDocumentos(res.data.data || res.data))
+      .then(res => {
+        const rawData = res.data.data || res.data;
+        const mappedData: Documento[] = rawData.map((doc: any) => {
+          const date = new Date(doc.createdAt);
+          return {
+            id: doc.idExpediente || `EXP-${doc.id}`,
+            solicitante: doc.solicitante,
+            rut: doc.rut,
+            tipo: doc.tipo || doc.asunto,
+            fecha: date.toLocaleDateString(),
+            hora: date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+            estado: doc.estado,
+            descripcion: doc.descripcion || doc.asunto,
+            archivos: [],
+            motivoRechazo: doc.motivoRechazo
+          };
+        });
+        setDocumentos(mappedData);
+      })
       .catch(console.error)
       .finally(() => setDocumentosLoading(false));
   }, []);
@@ -274,7 +305,7 @@ const DocumentosUser: React.FC = () => {
                 </thead>
                 <tbody>
                   {documentos.map((doc) => {
-                    const sc = STATUS_CONFIG[doc.estado];
+                    const sc = getStatusConfig(doc.estado);
                     const barColor = doc.estado === 'En Revisión' ? '#00518e'
                       : doc.estado === 'Aprobado' ? '#166534'
                         : doc.estado === 'Rechazado' ? '#9a1b24'
@@ -470,7 +501,7 @@ const DocumentosUser: React.FC = () => {
                     <div className="du-aside-field">
                       <div className="du-aside-field-lbl">Estado Actual</div>
                       {(() => {
-                        const sc = STATUS_CONFIG[selected.estado]; return (
+                        const sc = getStatusConfig(selected.estado); return (
                           <span className="du-aside-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
                         );
                       })()}
@@ -536,7 +567,7 @@ const DocumentosUser: React.FC = () => {
                 <div className="du-modal-info-header">
                   <span className="du-modal-info-title">Estado Actual</span>
                   {(() => {
-                    const sc = STATUS_CONFIG[selected.estado]; return (
+                    const sc = getStatusConfig(selected.estado); return (
                       <span className="du-modal-status-badge" style={{ background: sc.bg, color: sc.text }}>{sc.label}</span>
                     );
                   })()}

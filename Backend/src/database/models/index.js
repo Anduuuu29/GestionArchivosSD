@@ -3,6 +3,7 @@ const Documento = require('./Documento');
 const ArchivoDocumento = require('./ArchivoDocumento');
 const Ticket = require('./Ticket');
 const Trazabilidad = require('./Trazabilidad');
+const AccesoDocumento = require('./AccesoDocumento');
 
 // Relaciones
 Usuario.hasMany(Documento, { foreignKey: 'usuarioId' });
@@ -20,4 +21,8 @@ Trazabilidad.belongsTo(Documento, { foreignKey: 'documentoId' });
 Usuario.hasMany(Trazabilidad, { foreignKey: 'usuarioId' });
 Trazabilidad.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 
-module.exports = { Usuario, Documento, ArchivoDocumento, Ticket, Trazabilidad };
+// Acceso compartido a documentos (tabla intermedia)
+Usuario.belongsToMany(Documento, { through: AccesoDocumento, as: 'documentosCompartidos', foreignKey: 'usuarioId' });
+Documento.belongsToMany(Usuario, { through: AccesoDocumento, as: 'usuariosConAcceso', foreignKey: 'documentoId' });
+
+module.exports = { Usuario, Documento, ArchivoDocumento, Ticket, Trazabilidad, AccesoDocumento };
