@@ -18,7 +18,10 @@ api.interceptors.request.use((config) => {
 api.interceptors.response.use(
     (response) => response,
     (error) => {
-        if (error.response?.status === 401) {
+        const status = error.response?.status;
+        const message = error.response?.data?.message || 'Error de comunicación con el servidor.';
+
+        if (status === 401) {
             // Avoid redirecting if the error is from the auth endpoints
             const isAuthEndpoint = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
             
@@ -32,6 +35,12 @@ api.interceptors.response.use(
                 }
             }
         }
+
+        // Despachar evento para que el componente global de toast lo muestre en pantalla
+        window.dispatchEvent(new CustomEvent('api-error', { 
+            detail: { message } 
+        }));
+
         return Promise.reject(error);
     }
 );

@@ -21,6 +21,11 @@ import React, { useState } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { documentosService } from '../../services/documentos.service';
 
+// Helper para mostrar notificaciones globales
+const showToast = (message: string, color: 'danger' | 'warning' | 'success' = 'danger') => {
+  window.dispatchEvent(new CustomEvent('api-error', { detail: { message, color } }));
+};
+
 const RechazarDocumentoAdmin: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const history = useHistory();
@@ -325,14 +330,14 @@ const RechazarDocumentoAdmin: React.FC = () => {
                   </button>
                   <button onClick={async () => {
                     if (!motivo.trim()) {
-                      alert('Debe ingresar un motivo de rechazo.');
+                      showToast('Debe ingresar un motivo de rechazo.', 'warning');
                       return;
                     }
                     try {
                       await documentosService.rechazar(id, motivo);
                       history.push('/admin/documentos');
                     } catch (err: any) {
-                      alert(err.response?.data?.message || 'Error al rechazar el documento');
+                      showToast(err.response?.data?.message || 'Error al rechazar el documento');
                     }
                   }} className="flex-1 flex items-center justify-center gap-2 bg-[#9a1b24] text-white font-medium py-2.5 rounded-lg text-sm hover:bg-red-800 transition-colors">
                     <IonIcon icon={checkmarkCircleOutline} />

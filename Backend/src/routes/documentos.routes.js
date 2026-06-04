@@ -1,6 +1,6 @@
 const { Router } = require('express');
 const router = Router();
-const { Documento, Usuario } = require('../database/models');
+const { Documento, Usuario, ArchivoDocumento } = require('../database/models');
 const upload = require('../middleware/upload');
 
 //GET /api/documentos
@@ -69,15 +69,15 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
 
         // Crear registros en ArchivoDocumento
         if (req.files && req.files.length > 0) {
-        for (const archivo of req.files) {
-            await ArchivoDocumento.create({
-            nombre: archivo.originalname,
-            ruta: archivo.path,
-            tamaño: archivo.size,
-            tipoMime: archivo.mimetype,
-            documentoId: newDocumento.id,
-            });
-        }
+            for (const archivo of req.files) {
+                await ArchivoDocumento.create({
+                    nombre: archivo.originalname,
+                    ruta: archivo.path,
+                    tamaño: archivo.size,
+                    tipoMime: archivo.mimetype,
+                    documentoId: newDocumento.id,
+                });
+            }
         }
 
         res.status(201).json({ data: newDocumento, archivos: req.files });
@@ -152,8 +152,8 @@ router.post('/:id/rechazar', async (req, res) => {
 // Obtiene los archivos asociados a un documento
 router.get('/:id/archivos', async (req, res) => {
     try {
-        const archivos = await ArchivoDocumento.findAll({ 
-            where: { documentoId: req.params.id } 
+        const archivos = await ArchivoDocumento.findAll({
+            where: { documentoId: req.params.id }
         });
         res.json({ data: archivos });
     } catch (error) {

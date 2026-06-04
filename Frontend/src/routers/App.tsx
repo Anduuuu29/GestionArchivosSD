@@ -1,5 +1,6 @@
-import { IonApp, IonRouterOutlet, setupIonicReact } from '@ionic/react';
+import { IonApp, IonRouterOutlet, IonToast, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
+import React, { useState, useEffect } from 'react';
 
 
 import AuthRoot from '../pages/auth/AuthRoot';
@@ -25,6 +26,26 @@ import PublicRoute from '../components/PublicRoute';
 setupIonicReact();
 
 function App() {
+  const [toast, setToast] = useState<{ isOpen: boolean; message: string; color: string }>({
+    isOpen: false,
+    message: '',
+    color: 'danger',
+  });
+
+  useEffect(() => {
+    const handleApiError = (e: Event) => {
+      const customEvent = e as CustomEvent<{ message: string; color?: string }>;
+      setToast({
+        isOpen: true,
+        message: customEvent.detail.message || 'Ocurrió un error inesperado.',
+        color: customEvent.detail.color || 'danger',
+      });
+    };
+
+    window.addEventListener('api-error', handleApiError);
+    return () => window.removeEventListener('api-error', handleApiError);
+  }, []);
+
   return (
     <IonApp>
       <AuthProvider>
@@ -54,6 +75,16 @@ function App() {
           </IonRouterOutlet>
         </IonReactRouter>
       </AuthProvider>
+
+      {/* Toast de notificaciones globales — debe estar dentro de IonApp */}
+      <IonToast
+        isOpen={toast.isOpen}
+        message={toast.message}
+        color={toast.color as any}
+        duration={4000}
+        position="bottom"
+        onDidDismiss={() => setToast(prev => ({ ...prev, isOpen: false }))}
+      />
     </IonApp>
   );
 }

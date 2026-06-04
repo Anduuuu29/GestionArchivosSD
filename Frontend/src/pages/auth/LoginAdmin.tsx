@@ -121,6 +121,11 @@ const LoginAdmin: React.FC = () => {
               setError('Complete todos los campos.');
               return;
             }
+            // Validar formato de correo institucional
+            if (!identifier.includes('@')) {
+              setError('Ingrese un correo electrónico válido.');
+              return;
+            }
             setLoading(true);
             setError('');
             try {

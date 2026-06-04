@@ -14,6 +14,29 @@ import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
 import { misDocumentosService } from '../../services/mis-documentos.service';
 
+// Helper para mostrar notificaciones globales
+const showToast = (message: string, color: 'danger' | 'warning' | 'success' = 'danger') => {
+  window.dispatchEvent(new CustomEvent('api-error', { detail: { message, color } }));
+};
+
+const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+const validateFiles = (files: File[]): { valid: File[]; errors: string[] } => {
+  const valid: File[] = [];
+  const errors: string[] = [];
+  files.forEach(f => {
+    if (!ALLOWED_TYPES.includes(f.type)) {
+      errors.push(`"${f.name}": tipo no permitido (solo PDF, JPG, PNG).`);
+    } else if (f.size > MAX_SIZE_BYTES) {
+      errors.push(`"${f.name}": excede el límite de 10 MB.`);
+    } else {
+      valid.push(f);
+    }
+  });
+  return { valid, errors };
+};
+
 const AgregarDocumentosUser: React.FC = () => {
   const history = useHistory();
 
@@ -36,15 +59,17 @@ const AgregarDocumentosUser: React.FC = () => {
     e.stopPropagation();
 
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setArchivos(prev => [...prev, ...newFiles]);
+      const { valid, errors } = validateFiles(Array.from(e.dataTransfer.files));
+      if (errors.length) showToast(errors.join(' '), 'warning');
+      if (valid.length) setArchivos(prev => [...prev, ...valid]);
     }
   };
 
   const handleFileInput = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      setArchivos(prev => [...prev, ...newFiles]);
+      const { valid, errors } = validateFiles(Array.from(e.target.files));
+      if (errors.length) showToast(errors.join(' '), 'warning');
+      if (valid.length) setArchivos(prev => [...prev, ...valid]);
     }
   };
 
@@ -62,32 +87,33 @@ const AgregarDocumentosUser: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!categoria || !asunto) {
-      alert('Por favor complete los campos obligatorios (Tipo de Trámite y Asunto).');
+      showToast('Por favor complete los campos obligatorios (Tipo de Trámite y Asunto).', 'warning');
       return;
     }
-  
-  try {
-    // Crear FormData con los datos del formulario
-    const formData = new FormData();
-    formData.append('categoria', categoria);
-    formData.append('asunto', asunto);
-    if (descripcion) formData.append('descripcion', descripcion);
-    
-    // Agregar cada archivo
-    archivos.forEach((archivo, index) => {
-      formData.append('archivos', archivo);
-    });
-    
-    // Llamar al servicio con FormData
-    await misDocumentosService.create(formData);
-    
-    // Redirigir después de guardar
-    history.push('/usuario/documentos');
-  } catch (error) {
-    const err = error as { response?: { data?: { message?: string } } };
-    alert(err.response?.data?.message || 'Error al crear el documento');
-  }
-};
+
+    try {
+      // Crear FormData con los datos del formulario
+      const formData = new FormData();
+      formData.append('categoria', categoria);
+      formData.append('asunto', asunto);
+      if (descripcion) formData.append('descripcion', descripcion);
+
+      // Agregar cada archivo
+      archivos.forEach((archivo) => {
+        formData.append('archivos', archivo);
+      });
+
+      // Llamar al servicio con FormData
+      await misDocumentosService.create(formData);
+
+      showToast('Documento creado exitosamente.', 'success');
+      // Redirigir después de guardar
+      history.push('/usuario/documentos');
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      showToast(err.response?.data?.message || 'Error al crear el documento');
+    }
+  };
   return (
     <UserLayout>
       <div className="flex flex-col p-6 w-full max-w-[1200px] mx-auto overflow-y-auto" style={{ minHeight: 'calc(100vh - 60px)' }}>

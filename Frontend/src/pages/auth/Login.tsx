@@ -111,9 +111,24 @@ const Login: React.FC = () => {
           className="btn-primary"
           style={{ marginTop: 4, backgroundColor: 'rgba(5,13,44,0.95)' }}
           onClick={async () => {
+            setError('');
+            if (!identifier.trim()) {
+              setError('Ingrese su correo electrónico o RUT.');
+              return;
+            }
+            if (!pwd.trim()) {
+              setError('Ingrese su contraseña.');
+              return;
+            }
+            // Validación básica: correo debe contener @ o RUT debe tener al menos 7 caracteres
+            const esCorreo = identifier.includes('@');
+            const esRutValido = !esCorreo && identifier.replace(/\D/g, '').length >= 7;
+            if (!esCorreo && !esRutValido) {
+              setError('Ingrese un correo válido o un RUT con al menos 7 dígitos.');
+              return;
+            }
             try {
               setLoading(true);
-              setError('');
               await login(identifier, pwd);
               history.push('/usuario/dashboard');
             } catch (err: any) {

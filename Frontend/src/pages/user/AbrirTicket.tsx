@@ -9,6 +9,29 @@ import image1 from '../../assets/54434537_1683112835167519_5745946731946704896_n
 import image2 from '../../assets/santo_domingo_chile[1].webp';
 import image3 from '../../assets/Vista-panorámica-de-la-rica-playa-resort-ciudad-de-Santo-Domingo.jpg';
 
+// Helper para mostrar notificaciones globales
+const showToast = (message: string, color: 'danger' | 'warning' | 'success' = 'danger') => {
+  window.dispatchEvent(new CustomEvent('api-error', { detail: { message, color } }));
+};
+
+const ALLOWED_TYPES = ['application/pdf', 'image/jpeg', 'image/png'];
+const MAX_SIZE_BYTES = 10 * 1024 * 1024; // 10 MB
+
+const validateAndFilter = (files: File[]): { valid: File[]; errors: string[] } => {
+  const valid: File[] = [];
+  const errors: string[] = [];
+  files.forEach(f => {
+    if (!ALLOWED_TYPES.includes(f.type)) {
+      errors.push(`"${f.name}": tipo no permitido (solo PDF, JPG, PNG).`);
+    } else if (f.size > MAX_SIZE_BYTES) {
+      errors.push(`"${f.name}": excede el límite de 10 MB.`);
+    } else {
+      valid.push(f);
+    }
+  });
+  return { valid, errors };
+};
+
 const AbrirTicket: React.FC = () => {
   const history = useHistory();
 
@@ -47,15 +70,17 @@ const AbrirTicket: React.FC = () => {
     e.preventDefault();
     setIsDragging(false);
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-      const newFiles = Array.from(e.dataTransfer.files);
-      setArchivos(prev => [...prev, ...newFiles]);
+      const { valid, errors } = validateAndFilter(Array.from(e.dataTransfer.files));
+      if (errors.length) showToast(errors.join(' '), 'warning');
+      if (valid.length) setArchivos(prev => [...prev, ...valid]);
     }
   };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files.length > 0) {
-      const newFiles = Array.from(e.target.files);
-      setArchivos(prev => [...prev, ...newFiles]);
+      const { valid, errors } = validateAndFilter(Array.from(e.target.files));
+      if (errors.length) showToast(errors.join(' '), 'warning');
+      if (valid.length) setArchivos(prev => [...prev, ...valid]);
     }
   };
 
@@ -65,14 +90,15 @@ const AbrirTicket: React.FC = () => {
 
   const handleSubmit = async () => {
     if (!asunto.trim()) {
-      alert('Por favor ingrese el Asunto.');
+      showToast('Por favor ingrese el Asunto.', 'warning');
       return;
     }
     try {
       await ticketsService.create({ asunto, descripcion });
+      showToast('Ticket enviado exitosamente.', 'success');
       history.push('/usuario/dashboard');
-    } catch (err) {
-      alert(err.response?.data?.message || 'Error al enviar el ticket');
+    } catch (err: any) {
+      showToast(err.response?.data?.message || 'Error al enviar el ticket');
     }
   };
 
