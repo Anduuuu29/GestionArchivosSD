@@ -143,9 +143,63 @@ La estructura cumple con la organización de carpetas:
 * routes contiene a "App.tsx", la cual tiene todas las rutas y se encuentra en "src/routes".
 * services esta actualmente vacía dado que es dedicada a servicios de API o lógica de negocio, lo cual aún no se debe implementar. Está en "src/services".
 
-## 2.2
+
+## Creación del servidor en Node.js con Express o Flask (2.1)
+El backend fue implementado en Node.js con el framework Express. Se organizó de forma modular, favoreciendo así la escalabilidad y mantenimiento del código.
+
+## Configuración y modelado de la base de datos relacional (2.2)
+Se utiliza PostgreSQL para la base de datos relacional y Sequelize como ORM. Esto permite modelar entidades con relaciones, validaciones y restricciones de integridad.
+Modelo Relacional:
 <img width="831" height="681" alt="image" src="https://github.com/user-attachments/assets/5a66ce5e-3ecf-41c1-884a-fd2c2670b0c5" />
 
+## Desarrollo de API REST (2.3)
+La API cumple con las convenciones REST, dando respuestas JSON estructuradas y códigos HTTP.
+
+## Consumo de la API REST desde Ionic + React con Axios (2.4)
+El frontend se conecta al backend a través de una capa de servicios con Axios, manejando tokens y errores.
+
+## Autenticación con JWT (2.5)
+* Formulario de registro/inicio sesión
+  * En ```Register.tsx``` cuando se solicita nombre, apellido, RUT, correo, contraseña, región y comuna.
+  * ```Login.tsx```
+  * ```LoginAdmin.tsx```
+* Rutas protegidas en frontend
+  * ```ProtectedRoute``` envuelve rutas privadas y verifica que exista un token válido y que el rol coincida con ```requiredRole```.
+  * ```PublicRoute``` para evitar que usuarios ya autenticados vean el login/register.
+  * ```App.tsx``` con ```requiredRole="admin"``` y ```requiredRole="user"```.
+Se genera en ```auth.routes.js``` al logearse o registrarse, firmando un token con ```jwt.sign()```.
+
+## Validación de usuarios y manejo de sesiones (2.6)
+En el backend (```auth.routes.js```) se valida:
+* Que se ingresaron todos los campos (nombre, apellido, rut, correo, password, región y comuna).
+* El formato de correo con regex.
+* Que la contraseña sea de mínimo 6 caracteres.
+* Que el correo no esté usado por otro usuario.
+
+En el frontend(```utils/validators.ts```) se realizan validaciones complementarias antes de enviar la petición.
+
+También se usa bcrypt para encriptar las contraseñas y se utiliza ```bcrypt.compare(password, user.password)``` para iniciar sesión.
+
+Existe protección contra inyecciones SQL al utilizar Sequelize, que parametriza autimáticamente todas las consultas y valida los tipos en los modelos.
+
+## Pruebas funcionales (2.7)
+Se realizaron pruebas manuales de todos los endpoints de la API REST usuando Postman/Insomnia. El flujo incluye:
+* Registro de usuario (POST /api/auth/register) - validación de campos obligatorios, formato de email, largo mínimo de contraseña (6 caracteres), RUT chileno y correo duplicado
+* Inicio de sesión (POST/api/auth/login) - verifica credenciales con bcrypt, devuelve el token JWT con payload (id, rol) y expiración configurable
+* CRUD de documentos como admin - GET, POST, PUT, DELETE sobre /api/documentos protegidos con middleware auth + adminAuth
+* Mis documentos como usuario - GET y POST sobre /api/mis-documentos filtrados por usuarioId
+* Subida de archivos - POST con form-data y campo archivos[], filtro de tipo (PDF, JPG, PNG), límite de 10MB y creación automátoca de registros en ArchivoDocumento
+* Rechazo de documentos - POST/api/documentos/:id/rechazar con validación de motivo obligatorio
+* Tickets - POST /api/admin/storage, GET /api/admin/retention, POST /api/admin/purge/expired protegidas con adminAuth
+
+Para cada endpoint se verificó:
+Código de éxito: 200 (consulta), 201 (creación)
+Código de error: 400 (validación), 401 (no autenticado), 403 (rol incorrecto), 404 (no encontrado), 500 (error interno)
+Estructura de respuestas: {data: ...} para éxito, {error/message: ...} para error
+
+Credenciales de prueba:
+Admin: admin@santodomingo.cl / admin123
+Usuario: maria@correo.com / user123
 
 ### Links
 * Link a figma(1.3): https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0
