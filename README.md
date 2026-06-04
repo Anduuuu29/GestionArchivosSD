@@ -14,15 +14,15 @@ Para crear la base de datos hay que ingresar el comando ```psql -U postgres -c "
 
 
 ### Paso 3 (Backend)
-Entrar a la carpeta Backend (```cd Backend```).
-Copiar archivo ```.env``` con el comando ```cp .env.example.env```. Se debe editar con las credenciales del usuario para que este funcione correctamente (prioridad de cambiar la contraseña).
-Ejecutar ```npm install```.
-Para iniciar el servidor, ingresar ```node src/index.js```.
+* Entrar a la carpeta Backend (```cd Backend```).
+* Copiar archivo ```.env``` con el comando ```cp .env.example.env```. Se debe editar con las credenciales del usuario para que este funcione correctamente (prioridad de cambiar la contraseña).
+* Ejecutar ```npm install```.
+* Para iniciar el servidor, ingresar ```node src/index.js```.
 ### Paso 4 (Frontend)
-Entrar a la carpeta Frontend (```cd Frontend```).
-Copiar archivo ```.env``` con el comando ```cp .env.example.env```. En caso de ser necesario, editar credenciales.
-Ejecutar ```npm install```.
-Para iniciar el servidor, ingresar ```npm run dev```.
+* Entrar a la carpeta Frontend (```cd Frontend```).
+* Copiar archivo ```.env``` con el comando ```cp .env.example.env```. En caso de ser necesario, editar credenciales.
+* Ejecutar ```npm install```.
+* Para iniciar el servidor, ingresar ```npm run dev```.
 
 ## Justificación del Problema (1.2)
 En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos. Hoy en día se encuentran documentos en físico, los cuales se pueden perder, manchar y/o mojar, y que puede causar que se pierdan para siempre. También hay archivos en digital que están distribuidos por todos los computadores, no existiendo así una aplicación o programa que administre todo y simplifique la tarea del municipio. Los vecinos tampoco cuentan con una página pertinente para ver el estado de sus trámites o mandar nuevos. 
@@ -207,6 +207,12 @@ Estructura de respuestas: {data: ...} para éxito, {error/message: ...} para err
 Credenciales de prueba:
 Admin: admin@santodomingo.cl / admin123
 Usuario: maria@correo.com / user123
+
+Evidencia de (algunos) endpoints:
+* Login
+<img width="831" height="681" alt="imagen" src="https://github.com/user-attachments/assets/0eaa9220-c230-4dc8-ac58-1010916994aa" />
+* Register
+<img width="831" height="681" alt="imagen" src="https://github.com/user-attachments/assets/6f563f1b-80f4-41a2-8bb7-a3d97f5c0cde" />
 
 ### Links
 * Link a figma(1.3): https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0
