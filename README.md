@@ -5,17 +5,24 @@
 * David Henríquez
 ## Pasos para ejecutar el programa
 ### Requisitos previos
-1. Node.js: Asegurese de tener instalado Node.js
-2. Terminal: Debe tener abierto una terminal
+1. Node.js
+2. PostgreSQL
 ### Paso 1
-Navegar a la carpeta FrontEnd, para esto hay que ingresar el siguiente comando:
-"cd Frontend"
-### Paso 2
-Si es la primera vez que lo ejecutas, necesitas las librerías necesarias, para esto hay que colocar el siguiente comando:
-"npm install"
-### Paso 3
-Iniciar el servidor local
-"npm run dev"
+Clonar repositorio (```git clone https://github.com/Anduuuu29/GestionArchivosSD\ cd GestionArchivosSD```).
+### Paso 2 Crear la base de datos
+Para crear la base de datos hay que ingresar el comando ```psql -U postgres -c "CREATE DATABASE gestion_archivos_sd;"```
+
+
+### Paso 3 (Backend)
+* Entrar a la carpeta Backend (```cd Backend```).
+* Copiar archivo ```.env``` con el comando ```cp .env.example.env```. Se debe editar con las credenciales del usuario para que este funcione correctamente (prioridad de cambiar la contraseña).
+* Ejecutar ```npm install```.
+* Para iniciar el servidor, ingresar ```node src/index.js```.
+### Paso 4 (Frontend)
+* Entrar a la carpeta Frontend (```cd Frontend```).
+* Copiar archivo ```.env``` con el comando ```cp .env.example.env```. En caso de ser necesario, editar credenciales.
+* Ejecutar ```npm install```.
+* Para iniciar el servidor, ingresar ```npm run dev```.
 
 ## Justificación del Problema (1.2)
 En la municipalidad de Santo Domingo se afronta el gran problema de la mala administración de archivos y documentos. Hoy en día se encuentran documentos en físico, los cuales se pueden perder, manchar y/o mojar, y que puede causar que se pierdan para siempre. También hay archivos en digital que están distribuidos por todos los computadores, no existiendo así una aplicación o programa que administre todo y simplifique la tarea del municipio. Los vecinos tampoco cuentan con una página pertinente para ver el estado de sus trámites o mandar nuevos. 
@@ -184,13 +191,13 @@ Existe protección contra inyecciones SQL al utilizar Sequelize, que parametriza
 
 ## Pruebas funcionales (2.7)
 Se realizaron pruebas manuales de todos los endpoints de la API REST usuando Postman/Insomnia. El flujo incluye:
-* Registro de usuario (POST /api/auth/register) - validación de campos obligatorios, formato de email, largo mínimo de contraseña (6 caracteres), RUT chileno y correo duplicado
-* Inicio de sesión (POST/api/auth/login) - verifica credenciales con bcrypt, devuelve el token JWT con payload (id, rol) y expiración configurable
-* CRUD de documentos como admin - GET, POST, PUT, DELETE sobre /api/documentos protegidos con middleware auth + adminAuth
-* Mis documentos como usuario - GET y POST sobre /api/mis-documentos filtrados por usuarioId
-* Subida de archivos - POST con form-data y campo archivos[], filtro de tipo (PDF, JPG, PNG), límite de 10MB y creación automátoca de registros en ArchivoDocumento
-* Rechazo de documentos - POST/api/documentos/:id/rechazar con validación de motivo obligatorio
-* Tickets - POST /api/admin/storage, GET /api/admin/retention, POST /api/admin/purge/expired protegidas con adminAuth
+* Registro de usuario (POST /api/auth/register) - validación de campos obligatorios, formato de email, largo mínimo de contraseña (6 caracteres), RUT chileno y correo duplicado.
+* Inicio de sesión (POST/api/auth/login) - verifica credenciales con bcrypt, devuelve el token JWT con payload (id, rol) y expiración configurable.
+* CRUD de documentos como admin - GET, POST, PUT, DELETE sobre /api/documentos protegidos con middleware auth + adminAuth.
+* Mis documentos como usuario - GET y POST sobre /api/mis-documentos filtrados por usuarioId.
+* Subida de archivos - POST con form-data y campo archivos[], filtro de tipo (PDF, JPG, PNG), límite de 10MB y creación automátoca de registros en ArchivoDocumento.
+* Rechazo de documentos - POST/api/documentos/:id/rechazar con validación de motivo obligatorio.
+* Tickets - POST /api/admin/storage, GET /api/admin/retention, POST /api/admin/purge/expired protegidas con adminAuth.
 
 Para cada endpoint se verificó:
 Código de éxito: 200 (consulta), 201 (creación)
@@ -198,8 +205,17 @@ Código de error: 400 (validación), 401 (no autenticado), 403 (rol incorrecto),
 Estructura de respuestas: {data: ...} para éxito, {error/message: ...} para error
 
 Credenciales de prueba:
+
 Admin: admin@santodomingo.cl / admin123
+
 Usuario: maria@correo.com / user123
+
+Evidencia de (algunos) endpoints:
+* Login
+<img width="831" height="681" alt="imagen" src="https://github.com/user-attachments/assets/0eaa9220-c230-4dc8-ac58-1010916994aa" />
+
+* Register
+<img width="831" height="681" alt="imagen" src="https://github.com/user-attachments/assets/6f563f1b-80f4-41a2-8bb7-a3d97f5c0cde" />
 
 ### Links
 * Link a figma(1.3): https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0
