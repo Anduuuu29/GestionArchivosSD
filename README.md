@@ -211,6 +211,7 @@ Usuario: maria@correo.com / user123
 Evidencia de (algunos) endpoints:
 * Login
 <img width="831" height="681" alt="imagen" src="https://github.com/user-attachments/assets/0eaa9220-c230-4dc8-ac58-1010916994aa" />
+
 * Register
 <img width="831" height="681" alt="imagen" src="https://github.com/user-attachments/assets/6f563f1b-80f4-41a2-8bb7-a3d97f5c0cde" />
 
