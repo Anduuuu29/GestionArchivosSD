@@ -12,7 +12,7 @@ Documento.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 Usuario.hasMany(Ticket, { foreignKey: 'usuarioId' });
 Ticket.belongsTo(Usuario, { foreignKey: 'usuarioId' });
 
-Documento.hasMany(ArchivoDocumento, { foreignKey: 'documentoId', onDelete: 'CASCADE' });
+Documento.hasMany(ArchivoDocumento, { foreignKey: 'documentoId', as: 'archivos', onDelete: 'CASCADE' });
 ArchivoDocumento.belongsTo(Documento, { foreignKey: 'documentoId' });
 
 Documento.hasMany(Trazabilidad, { foreignKey: 'documentoId', onDelete: 'CASCADE' });

@@ -9,6 +9,7 @@ import {
   informationCircleOutline
 } from 'ionicons/icons';
 import React, { useState, useRef } from 'react';
+//import FormData from 'form-data';
 import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
 import { misDocumentosService } from '../../services/mis-documentos.service';
@@ -59,6 +60,34 @@ const AgregarDocumentosUser: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const handleSubmit = async () => {
+    if (!categoria || !asunto) {
+      alert('Por favor complete los campos obligatorios (Tipo de Trámite y Asunto).');
+      return;
+    }
+  
+  try {
+    // Crear FormData con los datos del formulario
+    const formData = new FormData();
+    formData.append('categoria', categoria);
+    formData.append('asunto', asunto);
+    if (descripcion) formData.append('descripcion', descripcion);
+    
+    // Agregar cada archivo
+    archivos.forEach((archivo, index) => {
+      formData.append('archivos', archivo);
+    });
+    
+    // Llamar al servicio con FormData
+    await misDocumentosService.create(formData);
+    
+    // Redirigir después de guardar
+    history.push('/usuario/documentos');
+  } catch (error) {
+    const err = error as { response?: { data?: { message?: string } } };
+    alert(err.response?.data?.message || 'Error al crear el documento');
+  }
+};
   return (
     <UserLayout>
       <div className="flex flex-col p-6 w-full max-w-[1200px] mx-auto overflow-y-auto" style={{ minHeight: 'calc(100vh - 60px)' }}>
@@ -195,18 +224,8 @@ const AgregarDocumentosUser: React.FC = () => {
 
         <div className="flex justify-center mt-12 mb-8">
           <button
-            onClick={async () => {
-              if (!categoria || !asunto) {
-                alert('Por favor complete los campos obligatorios (Tipo de Trámite y Asunto).');
-                return;
-              }
-              try {
-                await misDocumentosService.create({ categoria, asunto, descripcion });
-                history.push('/usuario/documentos');
-              } catch (err: any) {
-                alert(err.response?.data?.message || 'Error al crear el documento');
-              }
-            }}
+            onClick={handleSubmit}
+            disabled={archivos.length === 0 || !categoria || !asunto}
             style={{ backgroundColor: '#050d2c', color: 'white', padding: '14px 48px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1.2px', textTransform: 'uppercase', cursor: 'pointer', border: 'none', boxShadow: '0 4px 14px rgba(5,13,44,0.15)' }}
           >
             Aceptar
@@ -219,3 +238,5 @@ const AgregarDocumentosUser: React.FC = () => {
 };
 
 export default AgregarDocumentosUser;
+
+

@@ -11,13 +11,38 @@ import {
   downloadOutline,
   printOutline,
   closeOutline,
-  copyOutline
+  copyOutline,
+  eyeOutline,
+  imageOutline
 } from 'ionicons/icons';
-import React from 'react';
+import React, {useState, useEffect} from 'react';
 import { useHistory } from 'react-router-dom';
+import { misDocumentosService } from '../../services/mis-documentos.service';
+//import { formatFileSize } from '../../utils/validators';
 
 const DocumentoExpandidoUser: React.FC = () => {
   const history = useHistory();
+  const [archivos, setArchivos] = useState<any[]>([]);
+  const [cargando, setCargando] = useState(false);
+
+  useEffect(() => {
+    const pathParts = window.location.pathname.split('/');
+    const id = pathParts[pathParts.length - 1];
+    if (id) cargarArchivos(id);
+  }, []);
+
+  const cargarArchivos = async (documentoId: string) => {
+    setCargando(true);
+    try {
+      const res = await misDocumentosService.getArchivos(documentoId);
+      setArchivos(res.data.data || []);
+    } catch (error) {
+      console.error('Error al cargar archivos:', error);
+      setArchivos([]);
+    } finally {
+      setCargando(false);
+    }
+  };
   return (
     <IonPage>
       <IonContent fullscreen>
@@ -118,7 +143,9 @@ const DocumentoExpandidoUser: React.FC = () => {
                     <span className="font-semibold text-sm">Memorándum_2023_0452_MuniSD.pdf</span>
                   </div>
                   <div className="flex items-center gap-4">
-                    <button className="flex items-center gap-2 text-[#414751] hover:text-[#121a34] text-sm font-medium transition-colors">
+                    <button onClick={() => archivos[0] && misDocumentosService.descargarArchivo(archivos[0].id, archivos[0].nombre)}
+                      disabled={archivos.length === 0}
+                      className="flex items-center gap-2 text-[#414751] hover:text-[#121a34] text-sm font-medium transition-colors">
                       <IonIcon icon={downloadOutline} className="text-lg" />
                       Descargar
                     </button>
@@ -228,6 +255,37 @@ const DocumentoExpandidoUser: React.FC = () => {
                         PENDIENTE DE FIRMA
                       </div>
                     </div>
+                  </div>
+                  {/* ARCHIVOS ADJUNTOS */}
+                  <div className="flex flex-col gap-2 mt-6">
+                    <span className="text-[#414751] font-bold text-[10px] tracking-widest uppercase">ARCHIVOS ADJUNTOS</span>
+                    {cargando ? (
+                      <p className="text-gray-500 text-xs">Cargando archivos...</p>
+                    ) : archivos.length === 0 ? (
+                      <p className="text-gray-500 text-xs">No hay archivos adjuntos.</p>
+                    ) : (
+                      <div className="flex flex-col gap-2">
+                        {archivos.map((archivo) => (
+                          <div key={archivo.id} className="flex items-center gap-2 p-2 bg-gray-50 rounded-lg border border-gray-200">
+                            <IonIcon icon={archivo.nombre.toLowerCase().endsWith('.pdf') ? documentTextOutline : imageOutline} 
+                              className="text-lg text-gray-500" />
+                            <span className="flex-1 text-xs text-gray-700 truncate" title={archivo.nombre}>{archivo.nombre}</span>
+                            <button onClick={() => window.open(misDocumentosService.verArchivo(archivo.ruta), '_blank')}
+                              className="p-1 text-blue-600 hover:bg-blue-50 rounded"
+                              title="Ver">
+                              <IonIcon icon={eyeOutline} className="text-base" />
+                            </button>
+                            <button 
+                              onClick={() => misDocumentosService.descargarArchivo(archivo.id, archivo.nombre)}
+                              className="p-1 text-green-600 hover:bg-green-50 rounded"
+                              title="Descargar"
+                            >
+                              <IonIcon icon={downloadOutline} className="text-base" />
+                            </button>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   <hr className="border-gray-100" />

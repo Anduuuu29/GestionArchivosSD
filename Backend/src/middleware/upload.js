@@ -12,7 +12,7 @@ const storage = multer.diskStorage({
   }
 });
 
-const upload = multer({
+module.exports = multer({
   storage: storage,
   limits: {
     fileSize: 10 * 1024 * 1024, // 10MB máximo
@@ -29,29 +29,3 @@ const upload = multer({
     }
   }
 });
-const express = require('express');
-const cors = require('cors');
-const morgan = require('morgan');
-require('dotenv').config();
-const { auth, adminAuth } = require('./middleware/auth');
-
-const apiRoutes = require('./routes/index');
-
-const app = express();
-
-// Middleware
-app.use(cors());
-app.use(express.json());
-app.use(morgan('dev'));
-
-// Servir archivos estáticos de la carpeta uploads
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
-
-// Rutas
-app.use('/api', apiRoutes);
-app.use('/api/auth', require('./routes/auth.routes'));
-app.use('/api/documentos', auth, require('./routes/documentos.routes'));
-app.use('/api/mis-documentos', auth, require('./routes/mis-documentos.routes'));
-app.use('/api/admin', adminAuth, require('./routes/admin.routes'));
-app.use('/api/tickets', auth, require('./routes/tickets.routes'));
-module.exports = app;

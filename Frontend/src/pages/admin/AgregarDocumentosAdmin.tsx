@@ -12,6 +12,7 @@ import {
   folderOpenOutline
 } from 'ionicons/icons';
 import React, { useState, useRef } from 'react';
+//import FormData from 'form-data';
 import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
 import { documentosService } from '../../services/documentos.service';
@@ -67,6 +68,34 @@ const AgregarDocumentosAdmin: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
+  const handleSubmit = async () => {
+    if (!categoria || !asunto) {
+      alert('Por favor complete los campos obligatorios (Tipo de Trámite y Asunto).');
+      return;
+    }
+    
+    try {
+      // Crear FormData con los datos del formulario
+      const formData = new FormData();
+      formData.append('categoria', categoria);
+      formData.append('asunto', asunto);
+      if (descripcion) formData.append('descripcion', descripcion);
+      
+      // Agregar cada archivo
+      archivos.forEach((archivo, index) => {
+        formData.append('archivos', archivo);
+      });
+      
+      // Llamar al servicio con FormData
+      await documentosService.create(formData);
+      
+      // Redirigir después de guardar
+      history.push('/admin/documentos');
+    } catch (error) {
+      const err = error as { response?: { data?: { message?: string } } };
+      alert(err.response?.data?.message || 'Error al crear el documento');
+    }
+  };
   return (
     <UserLayout
       customNavItems={adminNavItems}
@@ -213,19 +242,8 @@ const AgregarDocumentosAdmin: React.FC = () => {
         {/* Action Buttons */}
         <div className="flex justify-center mt-12 mb-8">
           <button
-            onClick={async () => {
-              if (!categoria || !asunto) {
-                alert('Por favor complete los campos obligatorios (Tipo de Trámite y Asunto).');
-                return;
-              }
-              try {
-                await documentosService.create({ categoria, asunto, descripcion });
-                history.push('/admin/documentos');
-              } catch (error) {
-                const err = error as { response?: { data?: { message?: string } } };
-                alert(err.response?.data?.message || 'Error al crear el documento');
-              }
-            }}
+            onClick={handleSubmit}
+            disabled={archivos.length === 0}
             style={{ backgroundColor: '#050d2c', color: 'white', padding: '14px 48px', borderRadius: '4px', fontSize: '12px', fontWeight: 'bold', letterSpacing: '1.2px', textTransform: 'uppercase', cursor: 'pointer', border: 'none', boxShadow: '0 4px 14px rgba(5,13,44,0.15)' }}
           >
             Aceptar
