@@ -143,6 +143,10 @@ La estructura cumple con la organización de carpetas:
 * routes contiene a "App.tsx", la cual tiene todas las rutas y se encuentra en "src/routes".
 * services esta actualmente vacía dado que es dedicada a servicios de API o lógica de negocio, lo cual aún no se debe implementar. Está en "src/services".
 
+## 2.2
+<img width="831" height="681" alt="image" src="https://github.com/user-attachments/assets/5a66ce5e-3ecf-41c1-884a-fd2c2670b0c5" />
+
+
 ### Links
 * Link a figma(1.3): https://www.figma.com/design/x2w1YetlibQSoyQsiT1NZu/Sin-t%C3%ADtulo?node-id=0-1&p=f&t=SEeCUrZCTZi6Zr9p-0
 * https://firma.digital.gob.cl/
