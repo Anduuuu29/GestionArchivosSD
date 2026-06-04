@@ -205,7 +205,9 @@ Código de error: 400 (validación), 401 (no autenticado), 403 (rol incorrecto),
 Estructura de respuestas: {data: ...} para éxito, {error/message: ...} para error
 
 Credenciales de prueba:
+
 Admin: admin@santodomingo.cl / admin123
+
 Usuario: maria@correo.com / user123
 
 Evidencia de (algunos) endpoints:
