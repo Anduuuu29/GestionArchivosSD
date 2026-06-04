@@ -20,7 +20,7 @@ import UserLayout from '../../layouts/UserLayout';
 import { documentosService } from '../../services/documentos.service';
 
 /* ─────────── Types ─────────── */
-type EstadoDoc = 'En Revisión' | 'Urgente' | 'Terminado' | 'Ingresado' | 'Pendiente de Firma';
+type EstadoDoc = 'Pendiente' | 'Terminado' | 'Rechazado';
 
 interface Documento {
   id: string;
@@ -40,13 +40,9 @@ interface Documento {
 type StatusConfig = { bg: string; dot: string; text: string; label: string };
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  'En Revisión':        { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
-  'Rechazado':          { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
-  'Aprobado':           { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
-  'Ingresado':          { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
-  'Urgente':            { bg: '#fff3cd', dot: '#d97706', text: '#92400e', label: 'Urgente' },
+  'Pendiente':          { bg: '#fff3cd', dot: '#d97706', text: '#92400e', label: 'Pendiente' },
   'Terminado':          { bg: '#d1fae5', dot: '#047857', text: '#065f46', label: 'Terminado' },
-  'Pendiente de Firma': { bg: '#fef3c7', dot: '#b45309', text: '#78350f', label: 'Pendiente de Firma' },
+  'Rechazado':          { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
 };
 
 const DEFAULT_STATUS: StatusConfig = { bg: '#f3f4f6', dot: '#6b7280', text: '#374151', label: 'Desconocido' };
@@ -68,13 +64,22 @@ const DocumentosAdmin: React.FC = () => {
   const [selected, setSelected] = useState<Documento | null>(null);
   const [viewing, setViewing] = useState(false);
   const [showRechazarModal, setShowRechazarModal] = useState(false);
+  const [motivoRechazo, setMotivoRechazo] = useState('');
+  const [editingDoc, setEditingDoc] = useState<Documento | null>(null);
+  const [editEstado, setEditEstado] = useState<string>('Terminado');
+  const [filtroEstado, setFiltroEstado] = useState<string>('todos');
 
-  useEffect(() => {
-    documentosService.getAll()
+  const fetchDocumentos = () => {
+    setDocumentosLoading(true);
+    documentosService.getAll({ estado: filtroEstado })
       .then(res => setDocumentos(res.data.data || res.data))
       .catch(console.error)
       .finally(() => setDocumentosLoading(false));
-  }, []);
+  };
+
+  useEffect(() => {
+    fetchDocumentos();
+  }, [filtroEstado]);
 
   // Make sure to clean up specific modals when un-selecting
   useEffect(() => {
@@ -100,6 +105,50 @@ const DocumentosAdmin: React.FC = () => {
     } else {
        // Mock fallback for now since mock data uses strings
        alert('Descargando ' + (typeof file === 'string' ? file : 'archivo...'));
+    }
+  };
+
+  const handleFirmar = async () => {
+    if (!selected) return;
+    try {
+      await documentosService.update(selected.id, { estado: 'Terminado' });
+      fetchDocumentos();
+      setViewing(false);
+      setSelected(null);
+      alert('Documento firmado y terminado exitosamente');
+    } catch (e) {
+      alert('Error al firmar documento');
+    }
+  };
+
+  const handleRechazar = async () => {
+    if (!selected) return;
+    if (!motivoRechazo.trim()) {
+      alert('Por favor ingrese un motivo');
+      return;
+    }
+    try {
+      await documentosService.rechazar(selected.id, motivoRechazo);
+      fetchDocumentos();
+      setShowRechazarModal(false);
+      setViewing(false);
+      setSelected(null);
+      setMotivoRechazo('');
+      alert('Documento rechazado exitosamente');
+    } catch (e) {
+      alert('Error al rechazar documento');
+    }
+  };
+
+  const handleSaveEdit = async () => {
+    if (!editingDoc || !editEstado) return;
+    try {
+      await documentosService.update(editingDoc.id, { estado: editEstado });
+      fetchDocumentos();
+      setEditingDoc(null);
+      alert('Estado actualizado exitosamente');
+    } catch (e) {
+      alert('Error al actualizar estado');
     }
   };
 
@@ -376,9 +425,22 @@ const DocumentosAdmin: React.FC = () => {
             </div>
 
             <div className="admin-filters">
-              <button className="admin-filter-btn active">Todos</button>
-              <button className="admin-filter-btn">Pendientes</button>
-              <button className="admin-filter-btn">Terminados</button>
+              <button 
+                className={`admin-filter-btn ${filtroEstado === 'todos' ? 'active' : ''}`}
+                onClick={() => setFiltroEstado('todos')}
+              >Todos</button>
+              <button 
+                className={`admin-filter-btn ${filtroEstado === 'Pendiente' ? 'active' : ''}`}
+                onClick={() => setFiltroEstado('Pendiente')}
+              >Pendientes</button>
+              <button 
+                className={`admin-filter-btn ${filtroEstado === 'Terminado' ? 'active' : ''}`}
+                onClick={() => setFiltroEstado('Terminado')}
+              >Terminados</button>
+              <button 
+                className={`admin-filter-btn ${filtroEstado === 'Rechazado' ? 'active' : ''}`}
+                onClick={() => setFiltroEstado('Rechazado')}
+              >Rechazados</button>
             </div>
           </div>
 
@@ -445,7 +507,7 @@ const DocumentosAdmin: React.FC = () => {
                             <button className="du-action-btn" title="Descargar" onClick={(e) => handleDownload(e, doc)}>
                               <IonIcon icon={downloadOutline} />
                             </button>
-                            <button className="du-action-btn" title="Editar">
+                            <button className="du-action-btn" title="Editar Estado" onClick={(e) => { e.stopPropagation(); setEditingDoc(doc); setEditEstado(doc.estado !== 'Pendiente' ? doc.estado : 'Terminado'); }}>
                               <IonIcon icon={createOutline} />
                             </button>
                           </div>
@@ -486,10 +548,12 @@ const DocumentosAdmin: React.FC = () => {
                 <button className="du-viewer-tbtn" onClick={(e) => handleDownload(e, selected)}><IonIcon icon={downloadOutline} />Descargar</button>
                 <button className="du-viewer-tbtn"><IonIcon icon={printOutline} />Imprimir</button>
                 <div className="du-viewer-divider" />
-                <button className="du-viewer-tbtn-solid">
-                  <IonIcon icon={createOutline} />
-                  Firma Digital
-                </button>
+                {selected.estado !== 'Terminado' && selected.estado !== 'Rechazado' && (
+                  <button className="du-viewer-tbtn-solid" onClick={handleFirmar}>
+                    <IonIcon icon={createOutline} />
+                    Firma Digital
+                  </button>
+                )}
                 <div className="du-viewer-divider" style={{ background: 'transparent' }} />
                 <button className="du-viewer-tbtn" onClick={() => setViewing(false)} style={{ padding: 8 }}>
                   <IonIcon icon={closeOutline} style={{ fontSize: 20 }} />
@@ -625,10 +689,12 @@ const DocumentosAdmin: React.FC = () => {
                         <IonIcon icon={eyeOutline} />
                         Ver Trazabilidad Completa
                       </button>
-                      <button className="du-aside-btn-rechazar" onClick={() => setShowRechazarModal(true)}>
-                        <IonIcon icon={closeOutline} />
-                        Rechazar
-                      </button>
+                      {selected.estado !== 'Terminado' && selected.estado !== 'Rechazado' && (
+                        <button className="du-aside-btn-rechazar" onClick={() => setShowRechazarModal(true)}>
+                          <IonIcon icon={closeOutline} />
+                          Rechazar
+                        </button>
+                      )}
                     </div>
                   </div>
                 </div>
@@ -737,10 +803,12 @@ const DocumentosAdmin: React.FC = () => {
                 <IonIcon icon={createOutline} style={{ fontSize: 18 }} />
                 Observar
               </button>
-              <button className="du-modal-btn-firma">
-                <IonIcon icon={documentTextOutline} style={{ fontSize: 18 }} />
-                Firma Electrónica
-              </button>
+              {selected.estado !== 'Terminado' && selected.estado !== 'Rechazado' && (
+                <button className="du-modal-btn-firma" onClick={handleFirmar}>
+                  <IonIcon icon={documentTextOutline} style={{ fontSize: 18 }} />
+                  Firma Electrónica
+                </button>
+              )}
             </div>
 
           </div>
@@ -775,6 +843,8 @@ const DocumentosAdmin: React.FC = () => {
                   className="rej-textarea"
                   placeholder="Describa brevemente la razón por la cual se rechaza este documento..."
                   maxLength={500}
+                  value={motivoRechazo}
+                  onChange={(e) => setMotivoRechazo(e.target.value)}
                 ></textarea>
                 <span className="rej-counter">0 / 500 caracteres</span>
               </div>
@@ -784,12 +854,48 @@ const DocumentosAdmin: React.FC = () => {
               <button className="rej-btn-cancel" onClick={() => setShowRechazarModal(false)}>
                 Cancelar
               </button>
-              <button className="rej-btn-confirm" onClick={() => {
-                // Here we would handle the rejection logic, for now just close the modal
-                setShowRechazarModal(false);
-              }}>
+              <button className="rej-btn-confirm" onClick={handleRechazar}>
                 <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: 18 }} />
                 Confirmar Rechazo
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* ══════════════════ MODAL EDITAR ESTADO ══════════════════ */}
+      {editingDoc && (
+        <div className="rej-overlay" onClick={() => setEditingDoc(null)}>
+          <div className="rej-modal" onClick={e => e.stopPropagation()}>
+            <div className="rej-header">
+              <h2 className="rej-title">Editar Estado del Documento</h2>
+              <button className="rej-close" onClick={() => setEditingDoc(null)}>
+                <IonIcon icon={closeOutline} />
+              </button>
+            </div>
+            
+            <div className="rej-body">
+              <div className="rej-form-group">
+                <label className="rej-label">Seleccionar Estado <span className="rej-label-req">*</span></label>
+                <select 
+                  className="rej-textarea" 
+                  style={{ height: 'auto', padding: '12px' }}
+                  value={editEstado} 
+                  onChange={(e) => setEditEstado(e.target.value)}
+                >
+                  <option value="Terminado">Terminado</option>
+                  <option value="Rechazado">Rechazado</option>
+                </select>
+              </div>
+            </div>
+
+            <div className="rej-footer">
+              <button className="rej-btn-cancel" onClick={() => setEditingDoc(null)}>
+                Cancelar
+              </button>
+              <button className="rej-btn-confirm" style={{ background: '#00518e' }} onClick={handleSaveEdit}>
+                <IonIcon icon={checkmarkCircleOutline} style={{ fontSize: 18 }} />
+                Guardar Cambios
               </button>
             </div>
           </div>

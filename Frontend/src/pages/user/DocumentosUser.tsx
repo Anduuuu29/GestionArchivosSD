@@ -8,20 +8,20 @@ import {
   chevronForwardOutline,
   documentTextOutline,
   checkmarkCircleOutline,
-  closeCircleOutline,
+  
   hourglassOutline,
   downloadOutline,
   createOutline,
   copyOutline,
   printOutline,
-  alertCircleOutline,
+  
 } from 'ionicons/icons';
 import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
 import { misDocumentosService } from '../../services/mis-documentos.service';
 
 /* ─────────── Types ─────────── */
-type EstadoDoc = 'En Revisión' | 'Rechazado' | 'Aprobado' | 'Ingresado';
+type EstadoDoc = 'Pendiente' | 'Terminado' | 'Rechazado';
 
 interface Documento {
   id: string;
@@ -42,13 +42,9 @@ interface Documento {
 type StatusConfig = { bg: string; dot: string; text: string; label: string };
 
 const STATUS_CONFIG: Record<string, StatusConfig> = {
-  'En Revisión':        { bg: '#dbeafe', dot: '#1d4ed8', text: '#1d4ed8', label: 'En Revisión' },
-  'Rechazado':          { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
-  'Aprobado':           { bg: '#dcfce7', dot: '#166534', text: '#166534', label: 'Aprobado' },
-  'Ingresado':          { bg: '#e0e7ff', dot: '#4f46e5', text: '#3730a3', label: 'Ingresado' },
-  'Urgente':            { bg: '#fff3cd', dot: '#d97706', text: '#92400e', label: 'Urgente' },
+  'Pendiente':          { bg: '#fff3cd', dot: '#d97706', text: '#92400e', label: 'Pendiente' },
   'Terminado':          { bg: '#d1fae5', dot: '#047857', text: '#065f46', label: 'Terminado' },
-  'Pendiente de Firma': { bg: '#fef3c7', dot: '#b45309', text: '#78350f', label: 'Pendiente de Firma' },
+  'Rechazado':          { bg: '#ffdad8', dot: '#9a1b24', text: '#8e101d', label: 'Rechazado' },
 };
 
 const DEFAULT_STATUS: StatusConfig = { bg: '#f3f4f6', dot: '#6b7280', text: '#374151', label: 'Desconocido' };
@@ -56,13 +52,9 @@ const DEFAULT_STATUS: StatusConfig = { bg: '#f3f4f6', dot: '#6b7280', text: '#37
 const getStatusConfig = (estado: string): StatusConfig => STATUS_CONFIG[estado] || DEFAULT_STATUS;
 
 const STATUS_ICON: Record<string, string> = {
-  'En Revisión': hourglassOutline,
-  'Rechazado': closeCircleOutline,
-  'Aprobado': checkmarkCircleOutline,
-  'Ingresado': documentTextOutline,
-  'Urgente': alertCircleOutline,
+  'Pendiente': hourglassOutline,
   'Terminado': checkmarkCircleOutline,
-  'Pendiente de Firma': documentTextOutline,
+  'Rechazado': closeOutline,
 };
 
 /* ─────────── Component ─────────── */
@@ -335,10 +327,7 @@ const DocumentosUser: React.FC = () => {
                 <tbody>
                   {documentos.map((doc) => {
                     const sc = getStatusConfig(doc.estado);
-                    const barColor = doc.estado === 'En Revisión' ? '#00518e'
-                      : doc.estado === 'Aprobado' ? '#166534'
-                        : doc.estado === 'Rechazado' ? '#9a1b24'
-                          : '#9ca3af';
+                    const barColor = sc.dot;
                     return (
                       <tr 
                         key={doc.id}

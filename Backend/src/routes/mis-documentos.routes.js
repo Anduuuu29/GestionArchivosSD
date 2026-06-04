@@ -13,7 +13,7 @@ router.get('/', async (req, res) => {
             where: { usuarioId: req.usuario.id },
             offset: (page - 1) * limit,
             limit: Number(limit),
-            order: [['createdAt', 'DESC']],
+            order: [['id', 'DESC']],
         });
         res.json({
             data: rows,
@@ -63,7 +63,7 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
             tipo: categoria,
             asunto,
             descripcion: descripcion || '',
-            estado: 'Ingresado',
+            estado: 'Pendiente',
             usuarioId: req.usuario.id
         });
         //res.status(201).json({ data: newDocumento });
