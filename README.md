@@ -9,12 +9,16 @@
 2. PostgreSQL
 ### Paso 1
 Clonar repositorio (```git clone https://github.com/Anduuuu29/GestionArchivosSD\ cd GestionArchivosSD```).
-### Paso 2 (Backend)
+### Paso 2 Crear la base de datos
+Para crear la base de datos hay que ingresar el comando ```psql -U postgres -c "CREATE DATABASE gestion_archivos_sd;"```
+
+
+### Paso 3 (Backend)
 Entrar a la carpeta Backend (```cd Backend```).
 Copiar archivo ```.env``` con el comando ```cp .env.example.env```. Se debe editar con las credenciales del usuario para que este funcione correctamente (prioridad de cambiar la contraseña).
 Ejecutar ```npm install```.
 Para iniciar el servidor, ingresar ```node src/index.js```.
-### Paso 3 (Frontend)
+### Paso 4 (Frontend)
 Entrar a la carpeta Frontend (```cd Frontend```).
 Copiar archivo ```.env``` con el comando ```cp .env.example.env```. En caso de ser necesario, editar credenciales.
 Ejecutar ```npm install```.
