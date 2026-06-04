@@ -159,16 +159,18 @@ const AgregarDocumentosAdmin: React.FC = () => {
                 Tipo de Trámite <span className="text-red-500">*</span>
               </label>
               <div className="relative">
-                <select
+                <input
+                  list="categorias-list"
                   value={categoria}
                   onChange={(e) => setCategoria(e.target.value)}
-                  className="w-full bg-[#f2f3ff] border-none rounded-lg p-3.5 pr-10 text-sm text-[#121a34] font-['Public_Sans',sans-serif] appearance-none focus:ring-2 focus:ring-[#00518e]/30 outline-none cursor-pointer"
-                >
-                  <option value="" disabled>Seleccione una categoría</option>
-                  <option value="patente">Renovación de Patente</option>
-                  <option value="obras">Permiso de Obras</option>
-                  <option value="otros">Otros Trámites</option>
-                </select>
+                  placeholder="Seleccione o escriba una categoría..."
+                  className="w-full bg-[#f2f3ff] border-none rounded-lg p-3.5 pr-10 text-sm text-[#121a34] font-['Public_Sans',sans-serif] focus:ring-2 focus:ring-[#00518e]/30 outline-none"
+                />
+                <datalist id="categorias-list">
+                  <option value="Renovación de Patente" />
+                  <option value="Permiso de Obras" />
+                  <option value="Otros Trámites" />
+                </datalist>
                 <IonIcon icon={chevronDownOutline} className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
               </div>
             </div>

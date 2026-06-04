@@ -84,6 +84,25 @@ const DocumentosAdmin: React.FC = () => {
     }
   }, [selected]);
 
+  const handleDownload = (e?: React.MouseEvent, docItem?: Documento) => {
+    if (e) e.stopPropagation();
+    const docToDownload = docItem || selected;
+    if (!docToDownload || !docToDownload.archivos || docToDownload.archivos.length === 0) {
+      alert('Sin archivo');
+      return;
+    }
+    
+    // Attempt to download the first file if it's an object or just alert if we only have string names
+    const file = docToDownload.archivos[0];
+    if (typeof file === 'object' && (file as any).id) {
+       documentosService.descargarArchivo((file as any).id, (file as any).nombre || 'documento.pdf')
+         .catch(() => alert('Error al descargar'));
+    } else {
+       // Mock fallback for now since mock data uses strings
+       alert('Descargando ' + (typeof file === 'string' ? file : 'archivo...'));
+    }
+  };
+
   return (
     <UserLayout
       customNavItems={adminNavItems}
@@ -384,7 +403,11 @@ const DocumentosAdmin: React.FC = () => {
                     const isSelected = selected?.id === doc.id;
 
                     return (
-                      <tr key={doc.id} style={{ backgroundColor: isSelected ? '#f8faff' : '' }}>
+                      <tr 
+                        key={doc.id} 
+                        style={{ backgroundColor: isSelected ? '#f8faff' : '', cursor: 'pointer' }}
+                        onClick={() => setSelected(doc)}
+                      >
                         {/* ID */}
                         <td>
                           <div className="du-id-cell">
@@ -419,7 +442,7 @@ const DocumentosAdmin: React.FC = () => {
                             <button className={`du-action-btn ${isSelected ? 'active' : ''}`} onClick={() => setSelected(doc)} title="Ver detalles">
                               <IonIcon icon={eyeOutline} />
                             </button>
-                            <button className="du-action-btn" title="Descargar">
+                            <button className="du-action-btn" title="Descargar" onClick={(e) => handleDownload(e, doc)}>
                               <IonIcon icon={downloadOutline} />
                             </button>
                             <button className="du-action-btn" title="Editar">
@@ -457,10 +480,10 @@ const DocumentosAdmin: React.FC = () => {
             <div className="du-viewer-toolbar">
               <div className="du-viewer-toolbar-left">
                 <IonIcon icon={documentTextOutline} style={{ fontSize: 20, color: '#00518e' }} />
-                {selected.archivos[0] || 'Documento.pdf'}
+                {(selected.archivos || [])[0] || 'Documento.pdf'}
               </div>
               <div className="du-viewer-toolbar-right">
-                <button className="du-viewer-tbtn"><IonIcon icon={downloadOutline} />Descargar</button>
+                <button className="du-viewer-tbtn" onClick={(e) => handleDownload(e, selected)}><IonIcon icon={downloadOutline} />Descargar</button>
                 <button className="du-viewer-tbtn"><IonIcon icon={printOutline} />Imprimir</button>
                 <div className="du-viewer-divider" />
                 <button className="du-viewer-tbtn-solid">
@@ -490,7 +513,7 @@ const DocumentosAdmin: React.FC = () => {
                       <span style={{ fontSize: 10, fontWeight: 700, color: '#414751', letterSpacing: 1, textTransform: 'uppercase', fontFamily: 'Public Sans', marginTop: 8, textAlign: 'center' }}>MUNICIPALIDAD<br />SANTO DOMINGO</span>
                     </div>
                     <div style={{ textAlign: 'right', display: 'flex', flexDirection: 'column', gap: 6 }}>
-                      <div style={{ fontSize: 18, fontWeight: 700, color: '#00518e', fontFamily: 'Public Sans' }}>MEMORÁNDUM N° {selected.id.split('-').pop()}</div>
+                      <div style={{ fontSize: 18, fontWeight: 700, color: '#00518e', fontFamily: 'Public Sans' }}>MEMORÁNDUM N° {String(selected.id).split('-').pop()}</div>
                       <div style={{ fontSize: 13, fontWeight: 500, color: '#6b7280', fontFamily: 'Public Sans' }}>Santo Domingo, {selected.fecha}</div>
                     </div>
                   </div>
@@ -539,7 +562,7 @@ const DocumentosAdmin: React.FC = () => {
                   <div>
                     <div className="du-aside-field-lbl" style={{ marginBottom: 4 }}>ID SISTEMA</div>
                     <div className="du-aside-id-box">
-                      <span className="du-aside-id-val">SGD-2023-{selected.id.split('-').pop()}-DOM</span>
+                      <span className="du-aside-id-val">SGD-2023-{String(selected.id).split('-').pop()}-DOM</span>
                       <button style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', transition: 'color 0.2s' }} onMouseEnter={e => e.currentTarget.style.color = '#00518e'} onMouseLeave={e => e.currentTarget.style.color = '#6b7280'}>
                         <IonIcon icon={copyOutline} style={{ fontSize: 16 }} />
                       </button>
@@ -663,11 +686,11 @@ const DocumentosAdmin: React.FC = () => {
               {/* Archivos adjuntos */}
               <div>
                 <div className="du-modal-files-head" style={{ marginBottom: 16 }}>
-                  <span className="du-modal-section-title">DOCUMENTOS ADJUNTOS ({selected.archivos.length})</span>
+                  <span className="du-modal-section-title">DOCUMENTOS ADJUNTOS ({(selected.archivos || []).length})</span>
                   <button style={{ background: 'none', border: 'none', color: '#00518e', fontSize: 12, fontWeight: 700, fontFamily: 'Public Sans', cursor: 'pointer' }}>Ver todos</button>
                 </div>
                 <div className="du-modal-files-list">
-                  {selected.archivos.map((f, i) => (
+                  {(selected.archivos || []).map((f, i) => (
                     <div key={f} className="du-modal-file">
                       <div className={`du-modal-file-icon ${i === 1 ? 'img' : ''}`}>
                         <IonIcon icon={documentTextOutline} />
@@ -676,7 +699,7 @@ const DocumentosAdmin: React.FC = () => {
                         <span className="du-modal-file-name">{f}</span>
                         <span className="du-modal-file-meta">{i === 1 ? '4.2 MB' : '2.4 MB'} • {selected.fecha}</span>
                       </div>
-                      <button className="du-modal-dl-btn" title="Descargar">
+                      <button className="du-modal-dl-btn" title="Descargar" onClick={(e) => handleDownload(e, selected)}>
                         <IonIcon icon={downloadOutline} />
                       </button>
                     </div>
