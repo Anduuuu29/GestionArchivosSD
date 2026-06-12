@@ -1,16 +1,21 @@
 const { Router } = require('express');
 const router = Router();
+const { body, validationResult } = require('express-validator');
 const { Ticket } = require('../database/models');
 
 //POST /api/tickets
 //Crea un nuevo ticket
 
-router.post('/', async (req, res) => {
+router.post('/', [
+  body('asunto').trim().escape().notEmpty().withMessage('El asunto es obligatorio'),
+  body('descripcion').trim().escape().notEmpty().withMessage('La descripción es obligatoria'),
+], async (req, res) => {
     try {
-        const { asunto, descripcion } = req.body;
-        if (!asunto || !descripcion) {
-            return res.status(400).json({ error: 'Asunto y descripcion son obligatorios' });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
         }
+        const { asunto, descripcion } = req.body;
 
         const newTicket = await Ticket.create({
             asunto,

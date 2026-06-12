@@ -3,6 +3,7 @@ import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { validateEmail } from '../../utils/validators';
 
 const LoginAdmin: React.FC = () => {
   const history = useHistory();
@@ -121,8 +122,7 @@ const LoginAdmin: React.FC = () => {
               setError('Complete todos los campos.');
               return;
             }
-            // Validar formato de correo institucional
-            if (!identifier.includes('@')) {
+            if (!validateEmail(identifier)) {
               setError('Ingrese un correo electrónico válido.');
               return;
             }

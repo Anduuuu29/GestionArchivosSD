@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const router = Router();
+const { body, validationResult } = require('express-validator');
 const { Documento, Usuario, ArchivoDocumento } = require('../database/models');
 const upload = require('../middleware/upload');
 const { registrarTrazabilidad, crearNotificacion } = require('../services/notificaciones.service');
@@ -48,12 +49,18 @@ router.get('/:id', async (req, res) => {
 //POST /api/documentos
 //Crea un nuevo documento
 
-router.post('/', upload.array('archivos', 10), async (req, res) => {
+router.post('/', [
+  upload.array('archivos', 10),
+  body('categoria').trim().escape().notEmpty().withMessage('La categoría es obligatoria'),
+  body('asunto').trim().escape().notEmpty().withMessage('El asunto es obligatorio'),
+  body('descripcion').optional().trim().escape(),
+], async (req, res) => {
     try {
-        const { categoria, asunto, descripcion } = req.body;
-        if (!categoria || !asunto) {
-            return res.status(400).json({ error: 'Categoria y asunto son obligatorios' });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
         }
+        const { categoria, asunto, descripcion } = req.body;
         const user = await Usuario.findByPk(req.usuario.id, { attributes: ['nombre', 'apellido', 'rut'] });
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
         const newDocumento = await Documento.create({
@@ -102,8 +109,16 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
 //PUT /api/documentos/:id
 //Actualiza un documento
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', [
+  body('tipo').optional().trim().escape(),
+  body('descripcion').optional().trim().escape(),
+  body('estado').optional().trim().escape(),
+], async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
+        }
         const doc = await Documento.findByPk(req.params.id);
         if (!doc) {
             return res.status(404).json({ message: 'Documento no encontrado' });
@@ -162,16 +177,19 @@ router.delete('/:id', async (req, res) => {
 //POST /api/documentos/:id/rechazar
 //Rechaza un documento
 
-router.post('/:id/rechazar', async (req, res) => {
+router.post('/:id/rechazar', [
+  body('motivo').trim().escape().notEmpty().withMessage('El motivo del rechazo es obligatorio'),
+], async (req, res) => {
     try {
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ message: errors.array()[0].msg });
+        }
         const doc = await Documento.findByPk(req.params.id);
         if (!doc) {
             return res.status(404).json({ message: 'Documento no encontrado' });
         }
         const { motivo } = req.body;
-        if (!motivo) {
-            return res.status(400).json({ message: 'El motivo del rechazo es obligatorio' });
-        }
         doc.estado = 'Rechazado';
         doc.motivoRechazo = motivo;
         await doc.save();

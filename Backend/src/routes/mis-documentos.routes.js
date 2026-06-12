@@ -1,5 +1,6 @@
 const { Router } = require('express');
 const router = Router();
+const { body, validationResult } = require('express-validator');
 const { Documento, Usuario, ArchivoDocumento } = require('../database/models');
 const upload = require('../middleware/upload');
 const { registrarTrazabilidad, crearNotificacion } = require('../services/notificaciones.service');
@@ -49,12 +50,18 @@ router.get('/:id', async (req, res) => {
 //POST /api/mis-documentos
 //Crea un nuevo documento
 
-router.post('/', upload.array('archivos', 10), async (req, res) => {
+router.post('/', [
+  upload.array('archivos', 10),
+  body('categoria').trim().escape().notEmpty().withMessage('La categoría es obligatoria'),
+  body('asunto').trim().escape().notEmpty().withMessage('El asunto es obligatorio'),
+  body('descripcion').optional().trim().escape(),
+], async (req, res) => {
     try {
-        const { categoria, asunto, descripcion } = req.body;
-        if (!categoria || !asunto) {
-            return res.status(400).json({ error: 'Categoria y asunto son obligatorios' });
+        const errors = validationResult(req);
+        if (!errors.isEmpty()) {
+            return res.status(400).json({ error: errors.array()[0].msg });
         }
+        const { categoria, asunto, descripcion } = req.body;
         const user = await Usuario.findByPk(req.usuario.id, { attributes: ['nombre', 'apellido', 'rut'] });
         if (!user) return res.status(404).json({ message: 'Usuario no encontrado' });
         const newDocumento = await Documento.create({

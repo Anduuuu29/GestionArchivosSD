@@ -94,7 +94,7 @@ const AbrirTicket: React.FC = () => {
       return;
     }
     try {
-      await ticketsService.create({ asunto, descripcion });
+      await ticketsService.create({ asunto: asunto.trim(), descripcion: descripcion.trim() });
       showToast('Ticket enviado exitosamente.', 'success');
       history.push('/usuario/dashboard');
     } catch (err: any) {

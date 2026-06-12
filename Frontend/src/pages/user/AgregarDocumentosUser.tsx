@@ -92,11 +92,10 @@ const AgregarDocumentosUser: React.FC = () => {
     }
 
     try {
-      // Crear FormData con los datos del formulario
       const formData = new FormData();
-      formData.append('categoria', categoria);
-      formData.append('asunto', asunto);
-      if (descripcion) formData.append('descripcion', descripcion);
+      formData.append('categoria', categoria.trim());
+      formData.append('asunto', asunto.trim());
+      if (descripcion) formData.append('descripcion', descripcion.trim());
 
       // Agregar cada archivo
       archivos.forEach((archivo) => {

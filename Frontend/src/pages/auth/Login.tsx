@@ -3,6 +3,7 @@ import { eyeOutline, eyeOffOutline } from 'ionicons/icons';
 import React, { useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { useAuth } from '../../contexts/AuthContext';
+import { validateEmail } from '../../utils/validators';
 
 const Login: React.FC = () => {
   const history = useHistory();
@@ -120,8 +121,7 @@ const Login: React.FC = () => {
               setError('Ingrese su contraseña.');
               return;
             }
-            // Validación básica: correo debe contener @ o RUT debe tener al menos 7 caracteres
-            const esCorreo = identifier.includes('@');
+            const esCorreo = validateEmail(identifier);
             const esRutValido = !esCorreo && identifier.replace(/\D/g, '').length >= 7;
             if (!esCorreo && !esRutValido) {
               setError('Ingrese un correo válido o un RUT con al menos 7 dígitos.');

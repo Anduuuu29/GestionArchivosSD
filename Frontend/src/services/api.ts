@@ -20,6 +20,7 @@ api.interceptors.response.use(
     (error) => {
         const status = error.response?.status;
         const message = error.response?.data?.message || 'Error de comunicación con el servidor.';
+        console.error('API Error:', { url: error.config?.url, message: error.message, response: error.response });
 
         if (status === 401) {
             // Avoid redirecting if the error is from the auth endpoints
