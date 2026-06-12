@@ -10,20 +10,55 @@ import {
   addCircleOutline,
   serverOutline,
   ellipse,
-  timeOutline
+  timeOutline,
+  ticketOutline,
+  alertCircleOutline,
 } from 'ionicons/icons';
-import React from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
+import { adminService } from '../../services/admin.service';
 
 const adminNavItems = [
   { label: 'Dashboard', icon: homeOutline, path: '/admin/dashboard' },
   { label: 'Documentos', icon: documentTextOutline, path: '/admin/documentos' },
   { label: 'Administración de archivos', icon: folderOpenOutline, path: '/admin/archivos' },
+  { label: 'Tickets', icon: ticketOutline, path: '/admin/tickets' },
 ];
+
+interface StorageCategory {
+  pdf: number;
+  images: number;
+  database: number;
+}
+
+interface StorageData {
+  used: number;
+  total: number;
+  percentage: number;
+  categories: StorageCategory;
+  documentos: number;
+  archivos: number;
+}
 
 const AdminArchivos: React.FC = () => {
   const history = useHistory();
+  const [storage, setStorage] = useState<StorageData | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  const fetchStorage = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await adminService.getStorage();
+      setStorage(res.data?.data ?? res.data);
+    } catch {
+      window.dispatchEvent(new CustomEvent('api-error', { detail: 'Error al cargar almacenamiento' }));
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => { fetchStorage(); }, [fetchStorage]);
 
   return (
     <UserLayout
@@ -202,47 +237,77 @@ const AdminArchivos: React.FC = () => {
               <h3 className="text-[#121a34] font-bold text-sm m-0 font-['Public_Sans',sans-serif]">Estado del Almacenamiento</h3>
             </div>
 
-            <div className="flex flex-col gap-2 mb-6">
-              <div className="flex justify-between items-end">
-                <span className="text-[#121a34] font-bold text-xs uppercase font-['Inter',sans-serif]">Uso Total</span>
-                <span className="text-[#00518e] font-bold text-sm font-['Inter',sans-serif]">78%</span>
+            {loading ? (
+              <div className="flex flex-col gap-4 animate-pulse">
+                <div className="h-4 bg-gray-200 rounded w-3/4"></div>
+                <div className="h-2.5 bg-gray-200 rounded-full w-full"></div>
+                <div className="h-3 bg-gray-200 rounded w-1/2"></div>
+                <hr className="border-[#d1d5db] my-2" />
+                {[1, 2, 3].map(i => <div key={i} className="h-4 bg-gray-200 rounded w-full"></div>)}
               </div>
-              {/* Progress Bar */}
-              <div className="h-2.5 w-full bg-[#f2f3ff] rounded-full overflow-hidden">
-                <div className="h-full bg-[#00518e] w-[78%] rounded-full"></div>
-              </div>
-              <span className="text-[#414751] text-[10px] font-['Public_Sans',sans-serif]">3.1 TB de 4.0 TB utilizados</span>
-            </div>
-
-            <hr className="border-[#d1d5db] mb-6" />
-
-            <h4 className="text-[#414751] font-bold text-[10px] tracking-widest uppercase mb-4 font-['Inter',sans-serif]">Desglose por Categoría</h4>
-
-            <div className="flex flex-col gap-4">
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-2">
-                  <IonIcon icon={ellipse} className="text-[#00518e] text-[8px]" />
-                  <span className="text-[#414751] font-['Public_Sans',sans-serif]">Documentos PDF</span>
+            ) : storage ? (
+              <>
+                <div className="flex flex-col gap-2 mb-6">
+                  <div className="flex justify-between items-end">
+                    <span className="text-[#121a34] font-bold text-xs uppercase font-['Inter',sans-serif]">Uso Total</span>
+                    <span className="text-[#00518e] font-bold text-sm font-['Inter',sans-serif]">{storage.percentage}%</span>
+                  </div>
+                  <div className="h-2.5 w-full bg-[#f2f3ff] rounded-full overflow-hidden">
+                    <div className="h-full bg-[#00518e] rounded-full" style={{ width: `${storage.percentage}%` }}></div>
+                  </div>
+                  <span className="text-[#414751] text-[10px] font-['Public_Sans',sans-serif]">
+                    {storage.used.toFixed(1)} MB de {storage.total.toFixed(1)} MB utilizados
+                  </span>
                 </div>
-                <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">1.8 TB</span>
-              </div>
-              
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-2">
-                  <IonIcon icon={ellipse} className="text-[#b22222] text-[8px]" />
-                  <span className="text-[#414751] font-['Public_Sans',sans-serif]">Multimedia/Imágenes</span>
-                </div>
-                <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">0.9 TB</span>
-              </div>
 
-              <div className="flex justify-between items-center text-sm">
-                <div className="flex items-center gap-2">
-                  <IonIcon icon={ellipse} className="text-gray-500 text-[8px]" />
-                  <span className="text-[#414751] font-['Public_Sans',sans-serif]">Base de Datos</span>
+                <hr className="border-[#d1d5db] mb-6" />
+
+                <h4 className="text-[#414751] font-bold text-[10px] tracking-widest uppercase mb-4 font-['Inter',sans-serif]">Documentos y Archivos</h4>
+                <div className="flex justify-between items-center text-sm mb-4">
+                  <span className="text-[#414751] font-['Public_Sans',sans-serif]">Documentos</span>
+                  <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">{storage.documentos}</span>
                 </div>
-                <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">0.4 TB</span>
+                <div className="flex justify-between items-center text-sm mb-4">
+                  <span className="text-[#414751] font-['Public_Sans',sans-serif]">Archivos</span>
+                  <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">{storage.archivos}</span>
+                </div>
+
+                <hr className="border-[#d1d5db] mb-6" />
+
+                <h4 className="text-[#414751] font-bold text-[10px] tracking-widest uppercase mb-4 font-['Inter',sans-serif]">Desglose por Categoría</h4>
+
+                <div className="flex flex-col gap-4">
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <IonIcon icon={ellipse} className="text-[#00518e] text-[8px]" />
+                      <span className="text-[#414751] font-['Public_Sans',sans-serif]">Documentos PDF</span>
+                    </div>
+                    <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">{storage.categories.pdf.toFixed(1)} MB</span>
+                  </div>
+                  
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <IonIcon icon={ellipse} className="text-[#b22222] text-[8px]" />
+                      <span className="text-[#414751] font-['Public_Sans',sans-serif]">Multimedia/Imágenes</span>
+                    </div>
+                    <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">{storage.categories.images.toFixed(1)} MB</span>
+                  </div>
+
+                  <div className="flex justify-between items-center text-sm">
+                    <div className="flex items-center gap-2">
+                      <IonIcon icon={ellipse} className="text-gray-500 text-[8px]" />
+                      <span className="text-[#414751] font-['Public_Sans',sans-serif]">Base de Datos</span>
+                    </div>
+                    <span className="font-bold text-[#121a34] font-['Inter',sans-serif]">{storage.categories.database.toFixed(1)} MB</span>
+                  </div>
+                </div>
+              </>
+            ) : (
+              <div className="flex flex-col items-center gap-2 py-8 text-gray-400">
+                <IonIcon icon={alertCircleOutline} className="text-3xl" />
+                <p className="text-xs font-['Public_Sans',sans-serif]">No se pudo cargar</p>
               </div>
-            </div>
+            )}
 
           </div>
 

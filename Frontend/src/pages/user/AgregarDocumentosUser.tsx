@@ -107,7 +107,7 @@ const AgregarDocumentosUser: React.FC = () => {
       await misDocumentosService.create(formData);
 
       showToast('Documento creado exitosamente.', 'success');
-      // Redirigir después de guardar
+      window.dispatchEvent(new CustomEvent('notificacion-nueva'));
       history.push('/usuario/documentos');
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };

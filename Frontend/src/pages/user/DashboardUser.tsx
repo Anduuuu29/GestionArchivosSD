@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import {
@@ -66,7 +66,7 @@ const DashboardUser: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [openFaq, setOpenFaq] = useState<number | null>(null);
 
-  const toggleFaq = (i: number) => setOpenFaq(openFaq === i ? null : i);
+  const toggleFaq = useCallback((i: number) => setOpenFaq(prev => prev === i ? null : i), []);
 
   useEffect(() => {
     misDocumentosService.getAll({ limit: 50 })
@@ -74,29 +74,31 @@ const DashboardUser: React.FC = () => {
         const data = res.data.data || res.data || [];
         setDocumentos(data);
       })
-      .catch(console.error)
+      .catch(() => window.dispatchEvent(new CustomEvent('api-error', { detail: { message: 'Error al cargar documentos del dashboard' } })))
       .finally(() => setLoading(false));
   }, []);
 
   /* ─── Compute stats ─── */
-  const totalDocs = documentos.length;
-  const countByEstado = documentos.reduce<Record<string, number>>((acc, doc) => {
-    acc[doc.estado] = (acc[doc.estado] || 0) + 1;
-    return acc;
-  }, {});
+  const statCards = useMemo(() => {
+    const totalDocs = documentos.length;
+    const countByEstado = documentos.reduce<Record<string, number>>((acc, doc) => {
+      acc[doc.estado] = (acc[doc.estado] || 0) + 1;
+      return acc;
+    }, {});
 
-  const statCards = [
-    { label: 'Total', count: totalDocs,                          color: '#00518e', bg: '#e0f2fe' },
-    { label: 'Ingresados', count: countByEstado['Ingresado'] || 0,   color: '#4f46e5', bg: '#e0e7ff' },
-    { label: 'En Revisión', count: countByEstado['En Revisión'] || 0, color: '#1d4ed8', bg: '#dbeafe' },
-    { label: 'Aprobados', count: countByEstado['Aprobado'] || 0,     color: '#16a34a', bg: '#dcfce7' },
-    { label: 'Rechazados', count: countByEstado['Rechazado'] || 0,   color: '#dc2626', bg: '#ffdad8' },
-  ];
+    return [
+      { label: 'Total', count: totalDocs,                          color: '#00518e', bg: '#e0f2fe' },
+      { label: 'Ingresados', count: countByEstado['Ingresado'] || 0,   color: '#4f46e5', bg: '#e0e7ff' },
+      { label: 'En Revisión', count: countByEstado['En Revisión'] || 0, color: '#1d4ed8', bg: '#dbeafe' },
+      { label: 'Aprobados', count: countByEstado['Aprobado'] || 0,     color: '#16a34a', bg: '#dcfce7' },
+      { label: 'Rechazados', count: countByEstado['Rechazado'] || 0,   color: '#dc2626', bg: '#ffdad8' },
+    ];
+  }, [documentos]);
 
   /* Recent docs (last 6) */
-  const recentDocs = [...documentos]
+  const recentDocs = useMemo(() => [...documentos]
     .sort((a, b) => new Date(b.updatedAt || b.createdAt).getTime() - new Date(a.updatedAt || a.createdAt).getTime())
-    .slice(0, 6);
+    .slice(0, 6), [documentos]);
 
   const faqs = [
     {

@@ -9,7 +9,8 @@ import {
   informationCircleOutline,
   homeOutline,
   documentTextOutline,
-  folderOpenOutline
+  folderOpenOutline,
+  ticketOutline,
 } from 'ionicons/icons';
 import React, { useState, useRef } from 'react';
 //import FormData from 'form-data';
@@ -43,6 +44,7 @@ const adminNavItems = [
   { label: 'Dashboard', icon: homeOutline, path: '/admin/dashboard' },
   { label: 'Documentos', icon: documentTextOutline, path: '/admin/documentos' },
   { label: 'Administración de archivos', icon: folderOpenOutline, path: '/admin/archivos' },
+  { label: 'Tickets', icon: ticketOutline, path: '/admin/tickets' },
 ];
 
 const AgregarDocumentosAdmin: React.FC = () => {
@@ -115,7 +117,7 @@ const AgregarDocumentosAdmin: React.FC = () => {
       await documentosService.create(formData);
 
       showToast('Documento creado exitosamente.', 'success');
-      // Redirigir después de guardar
+      window.dispatchEvent(new CustomEvent('notificacion-nueva'));
       history.push('/admin/documentos');
     } catch (error) {
       const err = error as { response?: { data?: { message?: string } } };

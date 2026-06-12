@@ -2,6 +2,7 @@ const { Router } = require('express');
 const router = Router();
 const { Documento, Usuario, ArchivoDocumento } = require('../database/models');
 const upload = require('../middleware/upload');
+const { registrarTrazabilidad, crearNotificacion } = require('../services/notificaciones.service');
 
 //GET /api/mis-documentos
 //Obtiene los documentos del usuario logueado
@@ -63,7 +64,7 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
             tipo: categoria,
             asunto,
             descripcion: descripcion || '',
-            estado: 'Pendiente',
+            estado: 'Ingresado',
             usuarioId: req.usuario.id
         });
         //res.status(201).json({ data: newDocumento });
@@ -77,6 +78,15 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
                 documentoId: newDocumento.id,
                 });
             }
+        }
+
+        // Registrar trazabilidad
+        await registrarTrazabilidad(newDocumento.id, req.usuario.id, 'Documento creado', `Documento "${asunto}" creado por usuario`);
+
+        // Notificar a los administradores
+        const admins = await Usuario.findAll({ where: { rol: 'admin' }, attributes: ['id'] });
+        for (const admin of admins) {
+            await crearNotificacion(admin.id, `Nuevo documento de ${user.nombre} ${user.apellido}: "${asunto}"`, 'info', newDocumento.id, 'documento');
         }
 
         res.status(201).json({ data: newDocumento, archivos: req.files });

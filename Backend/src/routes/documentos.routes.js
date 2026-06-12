@@ -2,6 +2,7 @@ const { Router } = require('express');
 const router = Router();
 const { Documento, Usuario, ArchivoDocumento } = require('../database/models');
 const upload = require('../middleware/upload');
+const { registrarTrazabilidad, crearNotificacion } = require('../services/notificaciones.service');
 
 //GET /api/documentos
 //Obtiene todos los documentos
@@ -62,7 +63,7 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
             tipo: categoria,
             asunto,
             descripcion: descripcion || '',
-            estado: 'Pendiente',
+            estado: 'Ingresado',
             usuarioId: req.usuario.id
         });
         //res.status(201).json({ data: newDocumento });
@@ -77,6 +78,17 @@ router.post('/', upload.array('archivos', 10), async (req, res) => {
                     tipoMime: archivo.mimetype,
                     documentoId: newDocumento.id,
                 });
+            }
+        }
+
+        // Registrar trazabilidad
+        await registrarTrazabilidad(newDocumento.id, req.usuario.id, 'Documento creado', `Documento "${asunto}" creado con estado ${newDocumento.estado}`);
+
+        // Notificar al admin si el creador es un usuario normal
+        if (user.rol === 'user') {
+            const admins = await Usuario.findAll({ where: { rol: 'admin' }, attributes: ['id'] });
+            for (const admin of admins) {
+                await crearNotificacion(admin.id, `Nuevo documento de ${user.nombre} ${user.apellido}: "${asunto}"`, 'info', newDocumento.id, 'documento');
             }
         }
 
@@ -97,10 +109,32 @@ router.put('/:id', async (req, res) => {
             return res.status(404).json({ message: 'Documento no encontrado' });
         }
         const { tipo, descripcion, estado } = req.body;
-        if (tipo) doc.tipo = tipo;
-        if (descripcion) doc.descripcion = descripcion;
-        if (estado) doc.estado = estado;
+        const cambios = [];
+        if (tipo) { doc.tipo = tipo; cambios.push(`tipo: "${tipo}"`); }
+        if (descripcion) { doc.descripcion = descripcion; cambios.push('descripción actualizada'); }
+        if (estado && estado !== doc.estado) {
+            const estadoAnterior = doc.estado;
+            doc.estado = estado;
+            cambios.push(`estado: "${estadoAnterior}" → "${estado}"`);
+
+            // Notificar al usuario propietario del documento
+            const documento = await Documento.findByPk(req.params.id);
+            if (documento && documento.usuarioId !== req.usuario.id) {
+                await crearNotificacion(
+                    documento.usuarioId,
+                    `Tu documento "${doc.asunto}" cambió de estado: ${estadoAnterior} → ${estado}`,
+                    'exito',
+                    doc.id,
+                    'documento'
+                );
+            }
+        }
         await doc.save();
+
+        if (cambios.length > 0) {
+            await registrarTrazabilidad(doc.id, req.usuario.id, 'Documento actualizado', cambios.join(', '));
+        }
+
         res.json({ data: doc });
     } catch (error) {
         console.error(error);
@@ -141,6 +175,15 @@ router.post('/:id/rechazar', async (req, res) => {
         doc.estado = 'Rechazado';
         doc.motivoRechazo = motivo;
         await doc.save();
+
+        // Registrar trazabilidad
+        await registrarTrazabilidad(doc.id, req.usuario.id, 'Documento rechazado', `Motivo: ${motivo}`);
+
+        // Notificar al usuario propietario
+        if (doc.usuarioId !== req.usuario.id) {
+            await crearNotificacion(doc.usuarioId, `Tu documento "${doc.asunto}" fue rechazado. Motivo: ${motivo}`, 'error', doc.id, 'documento');
+        }
+
         res.json({ data: doc });
     } catch (error) {
         console.error(error);

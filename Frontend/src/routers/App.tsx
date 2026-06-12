@@ -1,29 +1,40 @@
 import { IonApp, IonRouterOutlet, IonToast, setupIonicReact } from '@ionic/react';
 import { IonReactRouter } from '@ionic/react-router';
-import React, { useState, useEffect } from 'react';
+import React, { Suspense, useState, useEffect } from 'react';
 
-
-import AuthRoot from '../pages/auth/AuthRoot';
-import Dashboard from '../pages/admin/Dashboard';
-import DashboardUser from '../pages/user/DashboardUser';
-import DocumentosAdmin from '../pages/admin/DocumentosAdmin';
-import DocumentosAdminDetails from '../pages/admin/DocumentosAdminDetails';
-import DocumentosUser from '../pages/user/DocumentosUser';
-import DocumentosUserDetails from '../pages/user/DocumentosUserDetails';
-import AbrirTicket from '../pages/user/AbrirTicket';
-import DocumentoExpandidoAdmin from '../pages/admin/DocumentoExpandidoAdmin';
-import AgregarDocumentosAdmin from '../pages/admin/AgregarDocumentosAdmin';
-import DocumentoExpandidoUser from '../pages/user/DocumentoExpandidoUser';
-import AgregarDocumentosUser from '../pages/user/AgregarDocumentosUser';
-import AdminArchivos from '../pages/admin/AdminArchivos';
-import RechazarDocumentoAdmin from '../pages/admin/RechazarDocumentoAdmin';
+const AuthRoot = React.lazy(() => import('../pages/auth/AuthRoot'));
+const Dashboard = React.lazy(() => import('../pages/admin/Dashboard'));
+const DashboardUser = React.lazy(() => import('../pages/user/DashboardUser'));
+const DocumentosAdmin = React.lazy(() => import('../pages/admin/DocumentosAdmin'));
+const DocumentosAdminDetails = React.lazy(() => import('../pages/admin/DocumentosAdminDetails'));
+const DocumentosUser = React.lazy(() => import('../pages/user/DocumentosUser'));
+const DocumentosUserDetails = React.lazy(() => import('../pages/user/DocumentosUserDetails'));
+const AbrirTicket = React.lazy(() => import('../pages/user/AbrirTicket'));
+const MisTickets = React.lazy(() => import('../pages/user/MisTickets'));
+const AdminTickets = React.lazy(() => import('../pages/admin/AdminTickets'));
+const DocumentoExpandidoAdmin = React.lazy(() => import('../pages/admin/DocumentoExpandidoAdmin'));
+const AgregarDocumentosAdmin = React.lazy(() => import('../pages/admin/AgregarDocumentosAdmin'));
+const DocumentoExpandidoUser = React.lazy(() => import('../pages/user/DocumentoExpandidoUser'));
+const AgregarDocumentosUser = React.lazy(() => import('../pages/user/AgregarDocumentosUser'));
+const AdminArchivos = React.lazy(() => import('../pages/admin/AdminArchivos'));
+const RechazarDocumentoAdmin = React.lazy(() => import('../pages/admin/RechazarDocumentoAdmin'));
 
 import { AuthProvider } from '../contexts/AuthContext';
 import ProtectedRoute from '../components/ProtectedRoute';
 import PublicRoute from '../components/PublicRoute';
 
-// Inicializar Ionic React
 setupIonicReact();
+
+function SuspenseFallback() {
+  return (
+    <div className="flex items-center justify-center min-h-screen bg-[#f5f6fa]">
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-10 h-10 border-4 border-[#00518e] border-t-transparent rounded-full animate-spin"></div>
+        <p className="text-[#414751] text-sm font-['Inter',sans-serif]">Cargando...</p>
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [toast, setToast] = useState<{ isOpen: boolean; message: string; color: string }>({
@@ -50,33 +61,33 @@ function App() {
     <IonApp>
       <AuthProvider>
         <IonReactRouter>
-          <IonRouterOutlet>
-            {/* Rutas Públicas */}
-            <PublicRoute exact path="/" component={AuthRoot} />
-            <PublicRoute exact path="/admin/login" component={AuthRoot} />
-            <PublicRoute exact path="/register" component={AuthRoot} />
+          <Suspense fallback={<SuspenseFallback />}>
+            <IonRouterOutlet>
+              <PublicRoute exact path="/" component={AuthRoot} />
+              <PublicRoute exact path="/admin/login" component={AuthRoot} />
+              <PublicRoute exact path="/register" component={AuthRoot} />
 
-            {/* Rutas Protegidas de Administrador */}
-            <ProtectedRoute exact path="/admin/dashboard" component={Dashboard} requiredRole="admin" />
-            <ProtectedRoute exact path="/admin/documentos" component={DocumentosAdmin} requiredRole="admin" />
-            <ProtectedRoute exact path="/admin/documentos/detalles" component={DocumentosAdminDetails} requiredRole="admin" />
-            <ProtectedRoute exact path="/admin/documentos/expandido" component={DocumentoExpandidoAdmin} requiredRole="admin" />
-            <ProtectedRoute exact path="/admin/documentos/rechazar" component={RechazarDocumentoAdmin} requiredRole="admin" />
-            <ProtectedRoute exact path="/admin/documentos/agregar" component={AgregarDocumentosAdmin} requiredRole="admin" />
-            <ProtectedRoute exact path="/admin/archivos" component={AdminArchivos} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/dashboard" component={Dashboard} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/documentos" component={DocumentosAdmin} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/documentos/detalles" component={DocumentosAdminDetails} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/documentos/expandido" component={DocumentoExpandidoAdmin} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/documentos/rechazar" component={RechazarDocumentoAdmin} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/documentos/agregar" component={AgregarDocumentosAdmin} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/archivos" component={AdminArchivos} requiredRole="admin" />
+              <ProtectedRoute exact path="/admin/tickets" component={AdminTickets} requiredRole="admin" />
 
-            {/* Rutas Protegidas de Usuario */}
-            <ProtectedRoute exact path="/usuario/dashboard" component={DashboardUser} requiredRole="user" />
-            <ProtectedRoute exact path="/usuario/documentos" component={DocumentosUser} requiredRole="user" />
-            <ProtectedRoute exact path="/usuario/documentos/detalles" component={DocumentosUserDetails} requiredRole="user" />
-            <ProtectedRoute exact path="/usuario/documentos/expandido" component={DocumentoExpandidoUser} requiredRole="user" />
-            <ProtectedRoute exact path="/usuario/documentos/agregar" component={AgregarDocumentosUser} requiredRole="user" />
-            <ProtectedRoute exact path="/abrir-ticket" component={AbrirTicket} requiredRole="user" />
-          </IonRouterOutlet>
+              <ProtectedRoute exact path="/usuario/dashboard" component={DashboardUser} requiredRole="user" />
+              <ProtectedRoute exact path="/usuario/documentos" component={DocumentosUser} requiredRole="user" />
+              <ProtectedRoute exact path="/usuario/documentos/detalles" component={DocumentosUserDetails} requiredRole="user" />
+              <ProtectedRoute exact path="/usuario/documentos/expandido" component={DocumentoExpandidoUser} requiredRole="user" />
+              <ProtectedRoute exact path="/usuario/documentos/agregar" component={AgregarDocumentosUser} requiredRole="user" />
+              <ProtectedRoute exact path="/abrir-ticket" component={AbrirTicket} requiredRole="user" />
+              <ProtectedRoute exact path="/usuario/tickets" component={MisTickets} requiredRole="user" />
+            </IonRouterOutlet>
+          </Suspense>
         </IonReactRouter>
       </AuthProvider>
 
-      {/* Toast de notificaciones globales — debe estar dentro de IonApp */}
       <IonToast
         isOpen={toast.isOpen}
         message={toast.message}

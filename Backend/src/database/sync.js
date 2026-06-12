@@ -1,7 +1,7 @@
 const { hashSync } = require('bcryptjs');
 
 const sequelize = require('./connection');
-const { Usuario, Documento, ArchivoDocumento, Ticket, Trazabilidad } = require('./models');
+const { Usuario, Documento, ArchivoDocumento, Ticket, Trazabilidad, Notificacion } = require('./models');
 
 async function syncDatabase() {
     try {

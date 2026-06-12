@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useHistory } from 'react-router-dom';
 import { IonIcon } from '@ionic/react';
 import {
@@ -11,8 +11,10 @@ import {
   timeOutline,
   eyeOutline,
   chevronForwardOutline,
+  ticketOutline,
 } from 'ionicons/icons';
 import UserLayout from '../../layouts/UserLayout';
+import { documentosService } from '../../services/documentos.service';
 
 const imgBg0 = 'http://localhost:3845/assets/d56d7828d32addefc132baafde9f76dc228a03f9.svg';
 const imgBg1 = 'http://localhost:3845/assets/319a969af9ea6edef1640ad7de331f8203f95175.svg';
@@ -31,29 +33,45 @@ const BARS = [
   { label:'DOM', pct:13,  color:'#c6c6c7',              active:false },
 ];
 
-const STATS = [
-  { img:imgBg0, label:'Trámites Pendientes', val:'24', accent:'#00518e', badge:'+12%', badgeBg:'rgba(0,81,142,0.1)', badgeColor:'#00518e' },
-  { img:imgBg3, label:'Por Firmar',          val:'08', accent:'#bc3539', badge:'Urgente', badgeBg:'rgba(154,27,36,0.1)', badgeColor:'#9a1b24' },
-  { img:imgBg1, label:'En Revisión',         val:'42', accent:'#d1d9fc', badge:null,     badgeBg:'', badgeColor:'' },
-  { img:imgBg2, label:'Plazos Vencidos',     val:'03', accent:'#ba1a1a', badge:'Crítico', badgeBg:'rgba(186,26,26,0.1)', badgeColor:'#ba1a1a' },
-];
-
-const TASKS = [
-  { id:'EXP-2024-0089', asunto:'Solicitud Permiso Edificación', depto:'Dirección de Obras Municipales', pri:'ALTA',   pc:'#bc3539', pb:'rgba(188,53,57,0.1)',  pbd:'rgba(188,53,57,0.2)',  tiempo:'4 horas',  tc:'#121a34', vencido:false },
-  { id:'EXP-2024-0102', asunto:'Convenio Marco Educación',      depto:'DAEM Santo Domingo',             pri:'MEDIA',  pc:'#00518e', pb:'rgba(0,81,142,0.1)',   pbd:'rgba(0,81,142,0.2)',   tiempo:'2 días',   tc:'#121a34', vencido:false },
-  { id:'EXP-2023-1562', asunto:'Informe Trimestral de Gestión', depto:'Control Interno',                pri:'CRÍTICA',pc:'#ba1a1a', pb:'rgba(186,26,26,0.1)',  pbd:'rgba(186,26,26,0.2)',  tiempo:'Vencido',  tc:'#ba1a1a', vencido:true  },
-  { id:'EXP-2024-0201', asunto:'Resolución Exenta Municipal',   depto:'Secretaría Municipal',           pri:'ALTA',   pc:'#bc3539', pb:'rgba(188,53,57,0.1)',  pbd:'rgba(188,53,57,0.2)',  tiempo:'1 día',    tc:'#121a34', vencido:false },
-  { id:'EXP-2024-0215', asunto:'Contrato Mantención Alumbrado', depto:'Obras Públicas',                 pri:'MEDIA',  pc:'#00518e', pb:'rgba(0,81,142,0.1)',   pbd:'rgba(0,81,142,0.2)',   tiempo:'3 días',   tc:'#121a34', vencido:false },
-];
-
 const adminNavItems = [
   { label: 'Dashboard', icon: homeOutline, path: '/admin/dashboard' },
   { label: 'Documentos', icon: documentTextOutline, path: '/admin/documentos' },
   { label: 'Administración de archivos', icon: folderOpenOutline, path: '/admin/archivos' },
+  { label: 'Tickets', icon: ticketOutline, path: '/admin/tickets' },
 ];
+
+interface DocItem {
+  id: number;
+  idExpediente: string;
+  solicitante: string;
+  asunto: string;
+  descripcion: string;
+  estado: string;
+  tipo: string;
+  createdAt: string;
+  Usuario?: { nombre: string; correo: string };
+}
 
 const Dashboard: React.FC = () => {
   const history = useHistory();
+  const [documentos, setDocumentos] = useState<DocItem[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    documentosService.getAll({ limit: 50 })
+      .then(res => setDocumentos(res.data.data || []))
+      .catch(() => window.dispatchEvent(new CustomEvent('api-error', { detail: { message: 'Error al cargar dashboard' } })))
+      .finally(() => setLoading(false));
+  }, []);
+
+  const stats = [
+    { label: 'Total Documentos', val: String(documentos.length), accent: '#00518e', badge: null as string | null, badgeBg: '', badgeColor: '' },
+    { label: 'Pendientes / Ingresados', val: String(documentos.filter(d => d.estado === 'Pendiente' || d.estado === 'Ingresado' || d.estado === 'En Revisión').length), accent: '#bc3539', badge: 'Pendientes', badgeBg: 'rgba(154,27,36,0.1)', badgeColor: '#9a1b24' },
+    { label: 'Terminados', val: String(documentos.filter(d => d.estado === 'Terminado').length), accent: '#d1d9fc', badge: null, badgeBg: '', badgeColor: '' },
+    { label: 'Rechazados', val: String(documentos.filter(d => d.estado === 'Rechazado').length), accent: '#ba1a1a', badge: 'Revisar', badgeBg: 'rgba(186,26,26,0.1)', badgeColor: '#ba1a1a' },
+  ];
+
+  const recentDocs = [...documentos].sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()).slice(0, 5);
 
   return (
     <UserLayout
@@ -64,6 +82,14 @@ const Dashboard: React.FC = () => {
       onNewTramite={() => history.push('/admin/documentos/agregar')}
       showLogs={true}
     >
+      <style>{`
+        @keyframes sk-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        .sk-stat { height: 80px; border-radius: 12px; background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 800px 100%; animation: sk-shimmer 1.5s ease-in-out infinite; }
+        .sk-row { height: 52px; }
+        .sk-cell { height: 14px; border-radius: 4px; background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 800px 100%; animation: sk-shimmer 1.5s ease-in-out infinite; }
+        .sk-cell-sm { width: 60px; }
+        .sk-cell-lg { width: 200px; }
+      `}</style>
       <div className="px-4 md:px-6 lg:px-8 pt-5 pb-6 flex flex-col gap-6 min-h-full">
         {/* Page heading */}
         <div>
@@ -72,23 +98,27 @@ const Dashboard: React.FC = () => {
 
         {/* Stats row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 lg:gap-4 w-full">
-          {STATS.map((s, i) => (
-            <div key={i} className="bg-white border border-[#c1c7d3] rounded-xl lg:rounded-2xl shadow-sm overflow-hidden relative flex flex-col gap-1 p-4 lg:p-5">
-              <div className="absolute left-0 top-0 bottom-0 w-[5px] rounded-l-xl" style={{ backgroundColor: s.accent }} aria-hidden="true" />
-              <div className="flex items-start justify-between">
-                <img src={s.img} alt="" aria-hidden="true" className="h-8 w-8 object-contain" />
-                {s.badge && (
-                  <span className="text-[11px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: s.badgeBg, color: s.badgeColor }}>
-                    {s.badge}
-                  </span>
-                )}
+          {loading ? (
+            Array.from({ length: 4 }).map((_, i) => <div key={i} className="sk-stat" />)
+          ) : (
+            stats.map((s, i) => (
+              <div key={i} className="bg-white border border-[#c1c7d3] rounded-xl lg:rounded-2xl shadow-sm overflow-hidden relative flex flex-col gap-1 p-4 lg:p-5">
+                <div className="absolute left-0 top-0 bottom-0 w-[5px] rounded-l-xl" style={{ backgroundColor: s.accent }} aria-hidden="true" />
+                <div className="flex items-start justify-between">
+                  <div className="h-8 w-8 rounded-lg" style={{ background: `${s.accent}20` }} aria-hidden="true" />
+                  {s.badge && (
+                    <span className="text-[11px] font-bold px-2 py-0.5 rounded" style={{ backgroundColor: s.badgeBg, color: s.badgeColor }}>
+                      {s.badge}
+                    </span>
+                  )}
+                </div>
+                <div className="pt-2">
+                  <p className="text-[#414751] text-[12px] lg:text-[13px] font-semibold leading-tight">{s.label}</p>
+                  <p className="text-[#121a34] text-[28px] lg:text-[32px] font-semibold leading-none mt-1">{s.val}</p>
+                </div>
               </div>
-              <div className="pt-2">
-                <p className="text-[#414751] text-[12px] lg:text-[13px] font-semibold leading-tight">{s.label}</p>
-                <p className="text-[#121a34] text-[28px] lg:text-[32px] font-semibold leading-none mt-1">{s.val}</p>
-              </div>
-            </div>
-          ))}
+            ))
+          )}
         </div>
 
         {/* Chart + Alert row */}
@@ -110,7 +140,7 @@ const Dashboard: React.FC = () => {
                 <div key={b.label} className="flex flex-col items-center gap-1 flex-1 relative" style={{ height: `${b.pct}%` }}>
                   {b.active && (
                     <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-[#272f4b] text-white text-[9px] px-2 py-0.5 rounded whitespace-nowrap z-10" role="tooltip">
-                      Hoy: 84 docs
+                      Hoy: {documentos.length} docs
                     </div>
                   )}
                   <div className="w-full rounded-t-md h-full transition-all duration-300 hover:opacity-80" style={{ backgroundColor: b.color }} />
@@ -151,11 +181,10 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Priority tasks table */}
+        {/* Recent documents table */}
         <section className="bg-white border border-[#c1c7d3] rounded-xl lg:rounded-2xl shadow-sm overflow-hidden flex flex-col" aria-labelledby="tasks-heading">
-          {/* Table header */}
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 px-4 lg:px-6 py-4 border-b border-[#c1c7d3] sticky top-0 bg-white z-10">
-            <h3 id="tasks-heading" className="text-[#121a34] text-xl lg:text-2xl font-semibold">Tareas Prioritarias</h3>
+            <h3 id="tasks-heading" className="text-[#121a34] text-xl lg:text-2xl font-semibold">Documentos Recientes</h3>
             <div className="relative w-full sm:w-64">
               <IonIcon icon={searchOutline} className="absolute left-3 top-1/2 -translate-y-1/2 text-[#6b7280] text-[13px] pointer-events-none" aria-hidden="true" />
               <input
@@ -167,58 +196,60 @@ const Dashboard: React.FC = () => {
             </div>
           </div>
 
-          {/* Responsive table */}
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px] text-left border-collapse table-fixed" role="table">
               <thead>
                 <tr className="bg-[#f2f3ff]">
-                  <th scope="col" className="w-[18%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">ID Expediente</th>
+                  <th scope="col" className="w-[18%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">Expediente</th>
                   <th scope="col" className="w-[42%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">Asunto</th>
-                  <th scope="col" className="w-[15%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">Prioridad</th>
-                  <th scope="col" className="w-[15%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">Tiempo Restante</th>
+                  <th scope="col" className="w-[15%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">Estado</th>
+                  <th scope="col" className="w-[15%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase">Fecha</th>
                   <th scope="col" className="w-[10%] px-4 lg:px-6 py-3 text-[#414751] text-[11px] font-bold tracking-wider uppercase text-right">Acción</th>
                 </tr>
               </thead>
               <tbody>
-                {TASKS.map((t, idx) => (
-                  <tr key={t.id} className={`border-t border-[#e8eaed] hover:bg-[#f8f9ff] transition-colors ${idx === 0 ? 'border-t-0':''}`}>
-                    <td className="px-4 lg:px-6 py-4 font-['Liberation_Mono',monospace] font-bold text-[#00518e] text-[13px] whitespace-nowrap">
-                      {t.id}
-                    </td>
-                    <td className="px-4 lg:px-6 py-4">
-                      <p className="text-[#121a34] font-semibold text-[14px] lg:text-[15px] leading-tight">{t.asunto}</p>
-                      <p className="text-[#414751] text-[11px] mt-0.5">{t.depto}</p>
-                    </td>
-                    <td className="px-4 lg:px-6 py-4">
-                      <span
-                        className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase border"
-                        style={{ color: t.pc, backgroundColor: t.pb, borderColor: t.pbd }}
-                      >
-                        {t.pri}
-                      </span>
-                    </td>
-                    <td className="px-4 lg:px-6 py-4">
-                      <span className="flex items-center gap-1.5 text-[13px] font-medium" style={{ color: t.tc, fontWeight: t.vencido ? 700 : 500 }}>
-                        {t.vencido && <IonIcon icon={timeOutline} aria-hidden="true" />}
-                        {t.tiempo}
-                      </span>
-                    </td>
-                    <td className="px-4 lg:px-6 py-4 text-right">
-                      <button
-                        onClick={() => history.push('/admin/documentos')}
-                        className="p-2 hover:bg-[#f2f3ff] focus:ring-2 focus:ring-[#00518e]/30 rounded-lg text-[#414751] transition-colors"
-                        aria-label={`Ver detalles de ${t.id}`}
-                      >
-                        <IonIcon icon={eyeOutline} className="text-lg" aria-hidden="true" />
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <tr key={i} className="sk-row"><td colSpan={5} style={{ padding: '14px 20px' }}><div className="sk-cell sk-cell-lg" /></td></tr>
+                  ))
+                ) : recentDocs.length === 0 ? (
+                  <tr><td colSpan={5} style={{ padding: '40px', textAlign: 'center', color: '#9ca3af' }}>No hay documentos disponibles</td></tr>
+                ) : (
+                  recentDocs.map((doc, idx) => (
+                    <tr key={doc.id} className={`border-t border-[#e8eaed] hover:bg-[#f8f9ff] transition-colors ${idx === 0 ? 'border-t-0':''}`}>
+                      <td className="px-4 lg:px-6 py-4 font-['Liberation_Mono',monospace] font-bold text-[#00518e] text-[13px] whitespace-nowrap">
+                        {doc.idExpediente || `EXP-${doc.id}`}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4">
+                        <p className="text-[#121a34] font-semibold text-[14px] lg:text-[15px] leading-tight">{doc.asunto}</p>
+                        <p className="text-[#414751] text-[11px] mt-0.5">{doc.solicitante}</p>
+                      </td>
+                      <td className="px-4 lg:px-6 py-4">
+                        <span className="inline-block px-3 py-1 rounded-full text-[10px] font-bold uppercase border" style={{
+                          color: doc.estado === 'Rechazado' ? '#9a1b24' : doc.estado === 'Terminado' ? '#065f46' : '#00518e',
+                          backgroundColor: doc.estado === 'Rechazado' ? '#ffdad8' : doc.estado === 'Terminado' ? '#d1fae5' : '#dbeafe',
+                          borderColor: doc.estado === 'Rechazado' ? '#f87171' : doc.estado === 'Terminado' ? '#34d399' : '#60a5fa',
+                        }}>{doc.estado}</span>
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 text-[13px] text-[#414751]">
+                        {new Date(doc.createdAt).toLocaleDateString()}
+                      </td>
+                      <td className="px-4 lg:px-6 py-4 text-right">
+                        <button
+                          onClick={() => history.push('/admin/documentos')}
+                          className="p-2 hover:bg-[#f2f3ff] focus:ring-2 focus:ring-[#00518e]/30 rounded-lg text-[#414751] transition-colors"
+                          aria-label={`Ver detalles de ${doc.idExpediente}`}
+                        >
+                          <IonIcon icon={eyeOutline} className="text-lg" aria-hidden="true" />
+                        </button>
+                      </td>
+                    </tr>
+                  ))
+                )}
               </tbody>
             </table>
           </div>
 
-          {/* Footer */}
           <div className="bg-[#f2f3ff] px-6 py-3 flex justify-center border-t border-[#c1c7d3]">
             <button
               onClick={() => history.push('/admin/documentos')}

@@ -1,4 +1,4 @@
-import React, { type ReactNode } from 'react';
+import React, { type ReactNode, useState, useEffect, useRef } from 'react';
 import { IonPage, IonContent, IonIcon } from '@ionic/react';
 import {
   homeOutline,
@@ -7,13 +7,26 @@ import {
   addOutline,
   searchOutline,
   notificationsOutline,
+  notificationsOffOutline,
   settingsOutline,
   logOutOutline,
   timeOutline,
+  checkmarkDoneOutline,
 } from 'ionicons/icons';
 import { useLocation, useHistory } from 'react-router-dom';
 import logoImg from '../assets/logo.png';
 import { useAuth } from '../contexts/AuthContext';
+import { notificacionesService } from '../services/notificaciones.service';
+
+interface Notificacion {
+  id: number;
+  mensaje: string;
+  tipo: 'info' | 'exito' | 'advertencia' | 'error';
+  leida: boolean;
+  referenciaId: number | null;
+  tipoReferencia: string | null;
+  createdAt: string;
+}
 
 export interface NavItem {
   label: string;
@@ -34,7 +47,7 @@ interface UserLayoutProps {
 const defaultNavItems: NavItem[] = [
   { label: 'Dashboard',    icon: homeOutline,         path: '/usuario/dashboard' },
   { label: 'Documentos',   icon: documentTextOutline,  path: '/usuario/documentos' },
-  { label: 'Abrir Ticket', icon: ticketOutline,        path: '/abrir-ticket' },
+  { label: 'Mis Tickets',  icon: ticketOutline,        path: '/usuario/tickets' },
 ];
 
 const UserLayout: React.FC<UserLayoutProps> = ({ 
@@ -49,6 +62,72 @@ const UserLayout: React.FC<UserLayoutProps> = ({
   const history = useHistory();
   const location = useLocation();
   const { logout, userName: contextUserName, role: contextRole } = useAuth();
+
+  const [notificaciones, setNotificaciones] = useState<Notificacion[]>([]);
+  const [noLeidas, setNoLeidas] = useState(0);
+  const [showNotificaciones, setShowNotificaciones] = useState(false);
+  const notifRef = useRef<HTMLDivElement>(null);
+
+  const fetchNotificaciones = async () => {
+    try {
+      const [resLista, resContador] = await Promise.all([
+        notificacionesService.getAll(),
+        notificacionesService.getContador(),
+      ]);
+      setNotificaciones(resLista.data.data || []);
+      setNoLeidas(resContador.data.data?.noLeidas || 0);
+    } catch {
+      // Silenciar errores de notificaciones
+    }
+  };
+
+  useEffect(() => {
+    fetchNotificaciones();
+    const interval = setInterval(fetchNotificaciones, 30000);
+    const onNotificacionNueva = () => fetchNotificaciones();
+    window.addEventListener('notificacion-nueva', onNotificacionNueva);
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener('notificacion-nueva', onNotificacionNueva);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
+        setShowNotificaciones(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  const handleMarcarLeida = async (id: number) => {
+    try {
+      await notificacionesService.marcarLeida(id);
+      fetchNotificaciones();
+    } catch {
+      // silenciar
+    }
+  };
+
+  const handleMarcarTodasLeidas = async () => {
+    try {
+      await notificacionesService.marcarTodasLeidas();
+      fetchNotificaciones();
+    } catch {
+      // silenciar
+    }
+  };
+
+  const getTipoBadge = (tipo: string) => {
+    switch (tipo) {
+      case 'exito': return '#16a34a';
+      case 'advertencia': return '#d97706';
+      case 'error': return '#dc2626';
+      default: return '#00518e';
+    }
+  };
 
   const displayUserName = contextUserName || userName || 'Usuario';
   const displayRole = contextRole === 'admin' ? 'Administrador' : (contextRole === 'user' ? 'Usuario' : userRole || 'Usuario');
@@ -329,6 +408,10 @@ const UserLayout: React.FC<UserLayoutProps> = ({
             object-fit: contain;
           }
 
+          /* ─────────────────────────── NOTIFICACIONES ─────────────────────────── */
+          .notif-dropdown::-webkit-scrollbar { width: 4px; }
+          .notif-dropdown::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 4px; }
+
           /* ─────────────────────────── CONTENT ─────────────────────────── */
           .ul-content {
             flex: 1;
@@ -349,11 +432,12 @@ const UserLayout: React.FC<UserLayoutProps> = ({
               </div>
 
               {/* Navigation */}
-              <nav className="ul-sb-nav">
+              <nav className="ul-sb-nav" aria-label="Navegación principal">
                 {activeNavItems.map((item) => (
-                  <div
+                  <button
                     key={item.path}
                     className={`ul-sb-item${isActive(item.path) ? ' active' : ''}`}
+                    aria-current={isActive(item.path) ? 'page' : undefined}
                     onClick={() => {
                       if (isActive(item.path)) {
                         window.dispatchEvent(new CustomEvent('reset-page', { detail: item.path }));
@@ -361,9 +445,9 @@ const UserLayout: React.FC<UserLayoutProps> = ({
                       history.push(item.path);
                     }}
                   >
-                    <IonIcon icon={item.icon} />
+                    <IonIcon icon={item.icon} aria-hidden="true" />
                     <span className="ul-sb-label">{item.label}</span>
-                  </div>
+                  </button>
                 ))}
               </nav>
             </div>
@@ -380,10 +464,10 @@ const UserLayout: React.FC<UserLayoutProps> = ({
 
               <div className="ul-sb-divider">
                 {showLogs && (
-                  <div className="ul-sb-item" style={{ marginBottom: '8px' }}>
-                    <IonIcon icon={timeOutline} />
+                  <button className="ul-sb-item" style={{ marginBottom: '8px', width: '100%', textAlign: 'left', background: 'none', border: 'none', cursor: 'pointer' }}>
+                    <IonIcon icon={timeOutline} aria-hidden="true" />
                     <span className="ul-sb-label">Logs</span>
-                  </div>
+                  </button>
                 )}
                 <div className="ul-sb-user-row">
                   <div className="ul-sb-avatar">{displayInitials}</div>
@@ -416,10 +500,74 @@ const UserLayout: React.FC<UserLayoutProps> = ({
                 />
               </div>
 
-              <div className="ul-nav-actions">
-                <button className="ul-nav-icon-btn" title="Notificaciones">
+              <div className="ul-nav-actions" ref={notifRef} style={{ position: 'relative' }}>
+                <button className="ul-nav-icon-btn" title="Notificaciones" onClick={() => setShowNotificaciones(!showNotificaciones)} style={{ position: 'relative' }}>
                   <IonIcon icon={notificationsOutline} />
+                  {noLeidas > 0 && (
+                    <span style={{
+                      position: 'absolute', top: '2px', right: '2px',
+                      background: '#dc2626', color: 'white', borderRadius: '50%',
+                      width: '16px', height: '16px', fontSize: '10px',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontWeight: 'bold', lineHeight: '1',
+                    }}>{noLeidas > 9 ? '9+' : noLeidas}</span>
+                  )}
                 </button>
+
+                {showNotificaciones && (
+                  <div style={{
+                    position: 'absolute', top: '100%', right: '0', marginTop: '8px',
+                    width: '360px', maxHeight: '400px', background: 'white',
+                    borderRadius: '8px', boxShadow: '0 4px 24px rgba(0,0,0,0.15)',
+                    zIndex: 1000, display: 'flex', flexDirection: 'column',
+                    overflow: 'hidden',
+                  }}>
+                    <div style={{
+                      display: 'flex', justifyContent: 'space-between', alignItems: 'center',
+                      padding: '12px 16px', borderBottom: '1px solid #e5e7eb',
+                    }}>
+                      <span style={{ fontWeight: 700, fontSize: '14px', color: '#111' }}>Notificaciones</span>
+                      {noLeidas > 0 && (
+                        <button onClick={handleMarcarTodasLeidas} style={{
+                          background: 'none', border: 'none', cursor: 'pointer',
+                          fontSize: '12px', color: '#00518e', fontWeight: 600,
+                          display: 'flex', alignItems: 'center', gap: '4px',
+                        }}>
+                          <IonIcon icon={checkmarkDoneOutline} style={{ fontSize: '14px' }} />
+                          Marcar todas leídas
+                        </button>
+                      )}
+                    </div>
+                    <div style={{ overflowY: 'auto', flex: 1 }}>
+                      {notificaciones.length === 0 ? (
+                        <div style={{ padding: '24px', textAlign: 'center', color: '#9ca3af', fontSize: '13px' }}>
+                          <IonIcon icon={notificationsOffOutline} style={{ fontSize: '24px', marginBottom: '8px' }} />
+                          <div>No hay notificaciones</div>
+                        </div>
+                      ) : notificaciones.map((n) => (
+                        <div key={n.id} onClick={() => !n.leida && handleMarcarLeida(n.id)} style={{
+                          padding: '12px 16px', cursor: 'pointer',
+                          background: n.leida ? 'white' : '#f0f7ff',
+                          borderBottom: '1px solid #f3f4f6', transition: 'background 0.1s',
+                        }}>
+                          <div style={{ display: 'flex', gap: '8px', alignItems: 'flex-start' }}>
+                            <div style={{
+                              width: '8px', height: '8px', borderRadius: '50%', marginTop: '4px', flexShrink: 0,
+                              background: getTipoBadge(n.tipo),
+                            }} />
+                            <div style={{ flex: 1, minWidth: 0 }}>
+                              <p style={{ margin: 0, fontSize: '13px', color: '#374151', lineHeight: '1.4' }}>{n.mensaje}</p>
+                              <p style={{ margin: '4px 0 0', fontSize: '11px', color: '#9ca3af' }}>
+                                {new Date(n.createdAt).toLocaleString('es-CL')}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+
                 <button className="ul-nav-icon-btn" title="Configuración">
                   <IonIcon icon={settingsOutline} />
                 </button>
@@ -427,6 +575,7 @@ const UserLayout: React.FC<UserLayoutProps> = ({
                   <img
                     src={logoImg}
                     alt="Logo Municipalidad Santo Domingo"
+                    loading="lazy"
                     className="ul-nav-logo"
                   />
                 </div>

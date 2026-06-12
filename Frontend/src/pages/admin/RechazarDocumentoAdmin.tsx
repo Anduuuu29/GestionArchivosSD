@@ -335,6 +335,7 @@ const RechazarDocumentoAdmin: React.FC = () => {
                     }
                     try {
                       await documentosService.rechazar(id, motivo);
+                      window.dispatchEvent(new CustomEvent('notificacion-nueva'));
                       history.push('/admin/documentos');
                     } catch (err: any) {
                       showToast(err.response?.data?.message || 'Error al rechazar el documento');

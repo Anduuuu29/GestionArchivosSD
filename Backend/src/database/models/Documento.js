@@ -30,11 +30,11 @@ const Documento = sequelize.define('Documento', {
         allowNull: true
     },
     estado: {
-        type: DataTypes.ENUM('Pendiente', 'Terminado', 'Rechazado'),
-        defaultValue: 'Pendiente',
+        type: DataTypes.ENUM('Ingresado', 'Pendiente', 'En Revisión', 'Aprobado', 'Rechazado', 'Terminado', 'Pendiente de Firma', 'Urgente'),
+        defaultValue: 'Ingresado',
         validate: {
             isIn: {
-                args: [['Pendiente', 'Terminado', 'Rechazado']],
+                args: [['Ingresado', 'Pendiente', 'En Revisión', 'Aprobado', 'Rechazado', 'Terminado', 'Pendiente de Firma', 'Urgente']],
                 msg: 'Estado no válido'
             }
         }

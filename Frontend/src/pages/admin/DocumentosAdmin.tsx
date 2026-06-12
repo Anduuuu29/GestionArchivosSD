@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { IonIcon } from '@ionic/react';
 import {
   eyeOutline,
@@ -13,7 +13,8 @@ import {
   printOutline,
   copyOutline,
   warningOutline,
-  checkmarkCircleOutline
+  checkmarkCircleOutline,
+  ticketOutline,
 } from 'ionicons/icons';
 import { useHistory, useLocation } from 'react-router-dom';
 import UserLayout from '../../layouts/UserLayout';
@@ -53,6 +54,7 @@ const adminNavItems = [
   { label: 'Dashboard', icon: homeOutline, path: '/admin/dashboard' },
   { label: 'Documentos', icon: documentTextOutline, path: '/admin/documentos' },
   { label: 'Administración de archivos', icon: folderOpenOutline, path: '/admin/archivos' },
+  { label: 'Tickets', icon: ticketOutline, path: '/admin/tickets' },
 ];
 
 /* ─────────── Component ─────────── */
@@ -68,18 +70,30 @@ const DocumentosAdmin: React.FC = () => {
   const [editingDoc, setEditingDoc] = useState<Documento | null>(null);
   const [editEstado, setEditEstado] = useState<string>('Terminado');
   const [filtroEstado, setFiltroEstado] = useState<string>('todos');
+  const [page, setPage] = useState(1);
+  const [totalDocs, setTotalDocs] = useState(0);
+  const limit = 5;
 
-  const fetchDocumentos = () => {
+  const fetchDocumentos = useCallback(() => {
     setDocumentosLoading(true);
-    documentosService.getAll({ estado: filtroEstado })
-      .then(res => setDocumentos(res.data.data || res.data))
-      .catch(console.error)
+    documentosService.getAll({ estado: filtroEstado, page, limit })
+      .then(res => {
+        setDocumentos(res.data.data || []);
+        setTotalDocs(res.data.total || 0);
+      })
+      .catch(() => window.dispatchEvent(new CustomEvent('api-error', { detail: { message: 'Error al cargar documentos' } })))
       .finally(() => setDocumentosLoading(false));
-  };
+  }, [filtroEstado, page]);
 
   useEffect(() => {
     fetchDocumentos();
-  }, [filtroEstado]);
+  }, [fetchDocumentos]);
+
+  const totalPages = useMemo(() => Math.max(1, Math.ceil(totalDocs / limit)), [totalDocs, limit]);
+
+  const goToPage = useCallback((p: number) => {
+    if (p >= 1 && p <= totalPages) setPage(p);
+  }, [totalPages]);
 
   // Make sure to clean up specific modals when un-selecting
   useEffect(() => {
@@ -113,6 +127,7 @@ const DocumentosAdmin: React.FC = () => {
     try {
       await documentosService.update(selected.id, { estado: 'Terminado' });
       fetchDocumentos();
+      window.dispatchEvent(new CustomEvent('notificacion-nueva'));
       setViewing(false);
       setSelected(null);
       alert('Documento firmado y terminado exitosamente');
@@ -130,6 +145,7 @@ const DocumentosAdmin: React.FC = () => {
     try {
       await documentosService.rechazar(selected.id, motivoRechazo);
       fetchDocumentos();
+      window.dispatchEvent(new CustomEvent('notificacion-nueva'));
       setShowRechazarModal(false);
       setViewing(false);
       setSelected(null);
@@ -145,6 +161,7 @@ const DocumentosAdmin: React.FC = () => {
     try {
       await documentosService.update(editingDoc.id, { estado: editEstado });
       fetchDocumentos();
+      window.dispatchEvent(new CustomEvent('notificacion-nueva'));
       setEditingDoc(null);
       alert('Estado actualizado exitosamente');
     } catch (e) {
@@ -409,6 +426,21 @@ const DocumentosAdmin: React.FC = () => {
         }
         .rej-btn-confirm:hover { background: #7f1d1d; }
 
+        /* ── SKELETON ── */
+        @keyframes sk-shimmer { 0%{background-position:-400px 0} 100%{background-position:400px 0} }
+        .sk-row { height: 52px; }
+        .sk-cell { height: 14px; border-radius: 4px; background: linear-gradient(90deg,#f0f0f0 25%,#e0e0e0 50%,#f0f0f0 75%); background-size: 800px 100%; animation: sk-shimmer 1.5s ease-in-out infinite; }
+        .sk-cell-sm { width: 40px; }
+        .sk-cell-md { width: 120px; }
+        .sk-cell-lg { width: 180px; }
+
+        /* ── EMPTY STATE ── */
+        .du-empty { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 60px 20px; color: #9ca3af; }
+        .du-empty ion-icon { font-size: 48px; margin-bottom: 12px; }
+        .du-empty h3 { margin: 0 0 4px; font-size: 18px; font-weight: 700; color: #374151; }
+        .du-empty p { margin: 0 0 20px; font-size: 14px; color: #9ca3af; }
+        .du-empty button { background: #050d2c; color: white; border: none; border-radius: 6px; padding: 10px 24px; font-size: 13px; font-weight: 700; cursor: pointer; transition: background 0.15s; }
+        .du-empty button:hover { background: #0a184a; }
       `}</style>
 
       {/* ── LIST VIEW ── */}
@@ -459,7 +491,30 @@ const DocumentosAdmin: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {documentos.map((doc) => {
+                  {documentosLoading ? (
+                    Array.from({ length: 5 }).map((_, i) => (
+                      <tr key={`sk-${i}`} className="sk-row">
+                        <td><div className="sk-cell sk-cell-sm" /></td>
+                        <td><div className="sk-cell sk-cell-lg" /></td>
+                        <td><div className="sk-cell sk-cell-md" /></td>
+                        <td><div className="sk-cell sk-cell-md" /></td>
+                        <td><div className="sk-cell sk-cell-sm" /></td>
+                        <td><div className="sk-cell sk-cell-sm" /></td>
+                      </tr>
+                    ))
+                  ) : documentos.length === 0 ? (
+                    <tr>
+                      <td colSpan={6}>
+                        <div className="du-empty">
+                          <IonIcon icon={folderOpenOutline} />
+                          <h3>No hay documentos</h3>
+                          <p>{filtroEstado !== 'todos' ? `No se encontraron documentos en estado "${filtroEstado}"` : 'Aún no se han registrado documentos en el sistema'}</p>
+                          <button onClick={() => history.push('/admin/documentos/agregar')}>Nuevo Documento</button>
+                        </div>
+                      </td>
+                    </tr>
+                  ) : (
+                    documentos.map((doc) => {
                     const sc = getStatusConfig(doc.estado);
                     const barColor = sc.dot;
                     const isSelected = selected?.id === doc.id;
@@ -514,22 +569,32 @@ const DocumentosAdmin: React.FC = () => {
                         </td>
                       </tr>
                     );
-                  })}
+                  }))}
                 </tbody>
               </table>
             </div>
 
             {/* Pagination */}
             <div className="du-pagination">
-              <span>Mostrando 1-5 de 61 expedientes</span>
+              <span>Mostrando {Math.min((page-1)*limit+1, totalDocs)}-{Math.min(page*limit, totalDocs)} de {totalDocs} expedientes</span>
               <div className="du-pag-btns">
-                <button className="du-pag-btn du-pag-icon" disabled><IonIcon icon={chevronBackOutline} /></button>
-                <button className="du-pag-btn active">1</button>
-                <button className="du-pag-btn">2</button>
-                <button className="du-pag-btn">3</button>
-                <span style={{ padding: '0 6px', color: '#9ca3af' }}>...</span>
-                <button className="du-pag-btn">13</button>
-                <button className="du-pag-btn du-pag-icon"><IonIcon icon={chevronForwardOutline} /></button>
+                <button className="du-pag-btn du-pag-icon" disabled={page === 1} onClick={() => goToPage(page-1)}><IonIcon icon={chevronBackOutline} /></button>
+                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                  let p: number;
+                  if (totalPages <= 7) {
+                    p = i + 1;
+                  } else if (page <= 4) {
+                    p = i + 1;
+                  } else if (page >= totalPages - 3) {
+                    p = totalPages - 6 + i;
+                  } else {
+                    p = page - 3 + i;
+                  }
+                  return (
+                    <button key={p} className={`du-pag-btn${p === page ? ' active' : ''}`} onClick={() => goToPage(p)}>{p}</button>
+                  );
+                })}
+                <button className="du-pag-btn du-pag-icon" disabled={page === totalPages} onClick={() => goToPage(page+1)}><IonIcon icon={chevronForwardOutline} /></button>
               </div>
             </div>
           </div>

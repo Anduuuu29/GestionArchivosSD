@@ -54,4 +54,7 @@ app.use('/api/documentos', auth, require('./routes/documentos.routes'));
 app.use('/api/mis-documentos', auth, require('./routes/mis-documentos.routes'));
 app.use('/api/admin', adminAuth, require('./routes/admin.routes'));
 app.use('/api/tickets', auth, require('./routes/tickets.routes'));
+app.use('/api/admin/tickets', adminAuth, require('./routes/admin-tickets.routes'));
+app.use('/api/notificaciones', auth, require('./routes/notificaciones.routes'));
+app.use('/api/documentos', auth, require('./routes/trazabilidad.routes'));
 module.exports = app;
